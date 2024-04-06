@@ -3,6 +3,7 @@ socket_routes
 file containing all the routes related to socket.io
 '''
 
+
 from flask_socketio import join_room, emit, leave_room
 from flask import request
 
