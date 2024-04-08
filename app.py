@@ -8,6 +8,7 @@ from flask import Flask, render_template, request, abort, url_for
 from flask_socketio import SocketIO
 import db
 import secrets
+import os
 
 # import logging
 
@@ -82,5 +83,9 @@ def home():
         abort(404)
     return render_template("home.jinja", username=request.args.get("username"))
 
+script_dir = os.path.dirname(os.path.abspath(__file__))
+certificate = os.path.join(script_dir,"certs/flaskapp.crt")
+certificatePrivateKey = os.path.join(script_dir,"certs/flaskapp.key")
+
 if __name__ == '__main__':
-    app.run(ssl_context=('certificate.crt', 'private.key'))
+    socketio.run(app,ssl_context=(certificate, certificatePrivateKey))
