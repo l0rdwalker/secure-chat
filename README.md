@@ -11,7 +11,7 @@ pip install SQLAlchemy flask-socketio simple-websocket
 ```
 
 # Running the App
-To run the app, execute "make run" or "python3 app.py"
+To run the app, 
 
 ```bash
 python3 app.py

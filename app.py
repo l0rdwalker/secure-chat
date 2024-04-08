@@ -8,7 +8,6 @@ from flask import Flask, render_template, request, abort, url_for
 from flask_socketio import SocketIO
 import db
 import secrets
-import os
 
 # import logging
 
@@ -20,12 +19,7 @@ app = Flask(__name__)
 
 # secret key used to sign the session cookie
 app.config['SECRET_KEY'] = secrets.token_hex()
-
-# LUNA 06/04
-certfile = os.path.join(os.path.dirname(__file__), 'certs/app.test.crt')
-keyfile = os.path.join(os.path.dirname(__file__), 'certs/app.test.key')
-
-socketio = SocketIO(app, certfile=certfile, keyfile=keyfile, async_mode='threading')
+socketio = SocketIO(app)
 
 # don't remove this!!
 import socket_routes
@@ -88,7 +82,5 @@ def home():
         abort(404)
     return render_template("home.jinja", username=request.args.get("username"))
 
-
-
 if __name__ == '__main__':
-    socketio.run(app, debug=True, ssl_context=(certfile, keyfile))
+    app.run(ssl_context=('certificate.crt', 'private.key'))
