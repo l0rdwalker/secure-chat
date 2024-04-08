@@ -82,5 +82,7 @@ def home():
         abort(404)
     return render_template("home.jinja", username=request.args.get("username"))
 
+
+
 if __name__ == '__main__':
-    app.run(ssl_context=('certificate.crt', 'private.key'))
+    socketio.run(app)
