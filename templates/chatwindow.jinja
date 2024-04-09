@@ -1,0 +1,110 @@
+
+
+{% block content %} 
+<style>
+    #chat_window_container {
+        width: 900px;
+        height: 600px;
+        border:1px solid black;
+        display: flex;
+        flex-direction: column;
+    }
+    #top_view {
+        background-color: rgb(222, 222, 222);
+        flex: 3;
+        max-height: 100%;
+        overflow: auto;
+    }
+    #bottom_view {
+        flex: 1;
+    }
+    #input_controls {
+        width: 850px;
+        height: 100px;
+        padding-top: 15px;
+        margin: auto;
+    }
+    #paragraph_input {
+        width: 100%;
+        height: 100%;
+    }
+    #submit_message {
+        margin-top: 7px;
+        float: right;
+    }
+    #message_container {
+        width: 95%;
+        margin: auto;
+        height: 100%;
+        padding-top: 10px;
+    }
+    #message_container p {
+        padding: 0px;
+        margin: 0px;
+    }
+    .message_container_content {
+        background-color: rgb(255, 255, 255);
+        padding: 10px;
+        margin-top: 5px;
+    }
+</style>
+
+<script>
+    /*
+    function relay(message,recipient) {
+        console.log("sending relay message");
+        send(message,recipient,'relay');
+    }
+    */
+    
+
+    function append_message_content(message,user) {
+        console.log("hit");
+        const container = document.getElementById('message_container'); // Ensure this is the correct ID
+        let entryHtml = `
+        <div class="message_container_content">
+                <p>${user}</p>
+                <p>${message}</p>
+            </div>`;
+        container.insertAdjacentHTML('beforeend', entryHtml);
+    }
+
+    function handle_send() {
+        const user_input = document.getElementById("paragraph_input"); 
+        let message_content = user_input.value;
+        user_input.value = "";
+
+        append_message_content(message_content,'ME!');
+    }
+
+    function clear_chat() {
+        document.getElementById("message_container").innerHTML = "";
+    }
+
+    function open_chat(user_name) {
+        
+
+        clear_chat();
+    }
+</script>
+
+<div id="chat_window_container">
+    <div id="top_view">
+        
+        <div id="message_container">
+
+        </div>
+
+    </div>
+    <div id="bottom_view">
+
+        <div id="input_controls">
+            <textarea id="paragraph_input" name="paragraph_input"></textarea>
+            <input id="submit_message" type="submit" onclick="handle_send()" value="send_request">
+        </div>
+
+    </div>
+</div>
+
+<button onclick="open_chat('William Walker')">New Chat</button>
+{% endblock %}

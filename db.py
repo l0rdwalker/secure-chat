@@ -77,6 +77,7 @@ def delete_friend_request(sender_user_name,receiver_user_name):
             session.delete(sender_to_reciever)
         if not (reciever_to_sender == None):
             session.delete(reciever_to_sender)
+        session.commit()
     
 def is_valid_username(user_name):
     return not get_user_by_username(user_name) == None
@@ -87,3 +88,30 @@ def send_friend_request(sender_user_name,receiver_user_name):
         with Session(engine) as session:
             session.add(request)
             session.commit()
+            
+def existing_friend_relationship(user_name_one,user_name_two):
+    with Session(engine) as session:
+        one_to_two = session.query(friends_list).filter(friends_list.user_one == user_name_one).filter(friends_list.user_two == user_name_two).first()
+        two_to_one = session.query(friends_list).filter(friends_list.user_two == user_name_one).filter(friends_list.user_one == user_name_two).first()
+        return one_to_two == two_to_one == None
+            
+def append_friends_relationship(user_name_one,user_name_two):
+    if (is_valid_username(user_name_one) and is_valid_username(user_name_two)):
+        if (existing_friend_relationship(user_name_one,user_name_two)):
+            with Session(engine) as session:
+                friend_relationship = friends_list(user_one=user_name_one,user_two=user_name_two)
+                session.add(friend_relationship)
+                session.commit()
+        
+def get_friends_by_username(user_name:str):
+    if (is_valid_username(user_name)):
+        with Session(engine) as session:
+            left_column_detection = session.query(friends_list).filter(friends_list.user_one == user_name).all()
+            right_column_detection = session.query(friends_list).filter(friends_list.user_two == user_name).all()
+
+            just_names = []
+            for relationship in left_column_detection:
+                just_names.append(relationship.user_two)
+            for relationship in right_column_detection:
+                just_names.append(relationship.user_one)
+            return just_names

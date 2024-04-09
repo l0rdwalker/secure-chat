@@ -24,8 +24,12 @@ user_aggregator = user_manager()
     #}
 
 def relay_friend_requests(user_name:str):
-    requests = {"requests":db.get_friend_requests(user_name)}
-    emit("update_friend_requests",json.dumps(requests),room=user_aggregator.get_relay_connection_reference(user_name))
+    request = {"requests":db.get_friend_requests(user_name)}
+    emit("update_friend_requests",json.dumps(request),room=user_aggregator.get_relay_connection_reference(user_name))
+
+def relay_friends_list(user_name:str):
+    request = {"friends_list":db.get_friends_by_username(user_name)}
+    emit("update_friends_list",json.dumps(request),room=user_aggregator.get_relay_connection_reference(user_name))
     
 def inform_error(error_msg:str, user_name:str):
     emit("error",error_msg,user_aggregator.get_relay_connection_reference(user_name))
@@ -37,6 +41,7 @@ def connect():
     user_aggregator.recognise_user(user_name, connection_reference)
     
     relay_friend_requests(user_name)
+    relay_friends_list(user_name)
 
 @socketio.on("relay")
 def relay(message):
@@ -57,8 +62,12 @@ def send_friend_request_response(message):
     message_json = json.loads(message)
     if db.is_valid_username(message_json['sender']) and db.is_valid_username(message_json['recipient']):
         if (message_json['message']):
-            pass #acceptence
+            db.append_friends_relationship(message_json['sender'],message_json['recipient'])
         db.delete_friend_request(message_json['sender'],message_json['recipient'])
+        
+        relay_friends_list(message_json['sender'])
+        relay_friends_list(message_json['recipient'])
+        
         relay_friend_requests(message_json['sender'])
         relay_friend_requests(message_json['recipient'])
 

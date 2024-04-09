@@ -38,8 +38,9 @@
     <h1>Messaging App </h1>
 
     <main>
+        {% include 'chatwindow.jinja' %}
+        <br>
         <section id="friends_box">
-            <p>Friends Box</p>
             {% include 'friends.jinja' %}
         </section>
         <button onclick="relay('Hello how are you','test')">Send Dummy Message</button>

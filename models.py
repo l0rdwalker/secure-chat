@@ -37,6 +37,12 @@ class friend_request(Base):
     sender: Mapped[str] = mapped_column(String)
     receiver: Mapped[str] = mapped_column(String)
 
+class friends_list(Base):
+    __tablename__ = "friends"
+    autoInc: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_one: Mapped[str] = mapped_column(String)
+    user_two: Mapped[str] = mapped_column(String)
+
 # stateful counter used to generate the room id
 #class Counter():
 #    def __init__(self):
