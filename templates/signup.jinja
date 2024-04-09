@@ -6,7 +6,7 @@ Sign up page, pretty much the same as login.
 
 {% block content %} 
     <h1>Sign Up</h1>
-    <p>Username</p>
+    <p>User_pog_name</p>
     <input id="username"/>
     <p>Password</p>
     <input id="password" type="password"/>
@@ -25,16 +25,22 @@ Sign up page, pretty much the same as login.
 
         // this function is identical to login(), see login.jinja
         async function signup() {
-            let loginURL = "{{ url_for('signup_user') }}";
-            let res = await axios.post(loginURL, {
+            let sign_up_url = "{{ url_for('signup_user') }}";
+
+            let user_hash = await sha256($("#username").val(),$("#password").val());
+            console.log(user_hash);
+            
+            let res = await axios.post(sign_up_url, {
                 username: $("#username").val(),
-                password: $("#password").val()
+                password: $("#password").val(),
+                user_hash: user_hash
             });
+            
             if (!isValidURL(res.data)) {
                 alert(res.data);
                 return;
             }
-            window.open(res.data, "_self")
+            window.open(res.data, "_self");
         }
     </script>
 {% endblock %}

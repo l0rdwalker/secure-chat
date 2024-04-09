@@ -8,6 +8,7 @@ from flask import Flask, render_template, request, abort, url_for
 from flask_socketio import SocketIO
 import db
 import secrets
+import common
 import os
 
 # import logging
@@ -41,17 +42,16 @@ def login_user():
     if not request.is_json:
         abort(404)
 
+    user_hash = request.json.get("user_hash")
     username = request.json.get("username")
-    password = request.json.get("password")
-
-    user =  db.get_user(username)
-    if user is None:
+    potential_user = db.get_user_by_username(username)
+    
+    if (potential_user == None):
         return "Error: User does not exist!"
-
-    if user.password != password:
+    if (not common.compare_hash(user_hash,potential_user.salt,potential_user.user_hash)):
         return "Error: Password does not match!"
 
-    return url_for('home', username=request.json.get("username"))
+    return url_for('home', username=username)
 
 # handles a get request to the signup page
 @app.route("/signup")
@@ -63,12 +63,12 @@ def signup():
 def signup_user():
     if not request.is_json:
         abort(404)
-    username = request.json.get("username")
-    password = request.json.get("password")
-
-    if db.get_user(username) is None:
-        db.insert_user(username, password)
-        return url_for('home', username=username)
+    
+    username = request.json.get("username")    
+    user_hash = request.json.get("user_hash")
+    if db.get_user_refactored(user_hash) == None:
+        db.insert_user_refactored(user_hash,username)
+        
     return "Error: User already exists!"
 
 # handler when a "404" error happens
@@ -89,3 +89,4 @@ certificatePrivateKey = os.path.join(script_dir,"certs/flaskapp.key")
 
 if __name__ == '__main__':
     socketio.run(app,ssl_context=(certificate, certificatePrivateKey))
+    

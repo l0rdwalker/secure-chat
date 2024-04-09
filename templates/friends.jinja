@@ -1,0 +1,135 @@
+{% block content %} 
+
+<style>
+#friends_container {
+    width: 900px;
+    height: 600px;
+    border:1px solid black;
+}
+#add_friends_container {
+    width: 100%;
+    height: fit-content;
+    background-color: rgb(204, 204, 204);
+}
+#centered_friend_search {
+    width: fit-content;
+    height: fit-content;
+    margin: auto;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    white-space: nowrap;
+}
+#centered_friend_search p { 
+    display: inline 
+}
+#vertical_seperator_container {
+    width: 100%;
+    height: 89.8%;
+    display: flex;
+}
+
+#vertical_seperator_container > div {
+    flex: 1;
+}
+.generic_friends_sub_container {
+    width: calc(100% - 40px);
+    height: calc(100% - 40px);
+    background-color: rgb(222, 222, 222);
+    margin: auto;
+    margin-top: 20px;
+    border:1px solid black;
+    overflow: auto;
+}
+.entry {
+    width: 100%;
+    height: 50px;
+    background-color: rgb(255, 255, 255);
+    margin-bottom: 2px;
+}
+.entry_content p { 
+    padding-right: 10px;
+    display: inline 
+}
+.entry_content input { 
+    display: inline 
+}
+.entry_content {
+    height: fit-content;
+    width: fit-content;
+    margin: auto;
+    padding-top: 15px;
+}
+</style>
+
+<script>
+    function respond_friend_request(acceptence, requesting_username) {
+        console.log(acceptence,requesting_username);
+        send_friend_request_response_socket(requesting_username,acceptence);
+    }
+
+    function clear_friend_requests() {
+        const container = document.getElementById('friend_requests');
+        container.innerHTML = "";
+    }
+
+    function update_friend_requests_setter(friend_requests) {
+        clear_friend_requests()
+        const container = document.getElementById('friend_requests'); // Ensure this is the correct ID
+        friend_requests.forEach(name => {
+            const entryHtml = `
+            <div class="entry">
+                <div class="entry_content">
+                    <p>${name}</p>
+                    <input type="submit" onclick="respond_friend_request(true,'${name}')" value="accept" style="background-color: rgb(204, 255, 126);">
+                    <input type="submit" onclick="respond_friend_request(false,'${name}')" value="reject" style="background-color: rgb(255, 117, 117);">
+                </div>
+            </div>`;
+            container.insertAdjacentHTML('beforeend', entryHtml);
+        });
+    }
+
+    socket.on("update_friend_requests", (msg, color="black") => {
+        friend_request_data = JSON.parse(msg)['requests']; // Parse and assign before calling the function
+        console.log("update friend requests");
+        update_friend_requests_setter(friend_request_data); // Call the function after setting friendRequestsData
+        alert("Friend request sent");
+    })
+
+    function send_friend_request() {
+        console.log("clicked send friend request");
+        let friend_user_name = document.getElementById("friend_add_username").value;
+        console.log(friend_user_name);
+        send_friend_request_socket(friend_user_name);
+    }
+</script>
+
+<div id="friends_container">
+    <div id="add_friends_container">
+        <div id="centered_friend_search">
+            <p>Add Friend:</p>
+            <input type="text" id="friend_add_username" name="friend_add_username">
+            <input type="submit" onclick="send_friend_request()" value="send_request">
+        </div>
+    </div>
+
+    <div id="vertical_seperator_container">
+        <div>
+            <div id="start_chat" class="generic_friends_sub_container">
+
+                <div class="entry">
+                    <div class="entry_content">
+                        <p>Name</p>
+                        <input type="submit" value="start chat">
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div>
+            <div id="friend_requests" class="generic_friends_sub_container">
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
