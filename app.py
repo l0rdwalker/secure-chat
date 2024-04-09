@@ -11,11 +11,11 @@ import secrets
 import common
 import os
 
-# import logging
+import logging
 
 # this turns off Flask Logging, uncomment this to turn off Logging
-# log = logging.getLogger('werkzeug')
-# log.setLevel(logging.ERROR)
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 
 app = Flask(__name__)
 
