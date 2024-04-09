@@ -12,15 +12,15 @@
 
         function send(message,recipient,type) {
             console.log("Sending message");
-            socket.emit(type,JSON.stringify({sender: username, recipient:recipient, message:message}));  
+            socket.emit(type, JSON.stringify({sender: username, recipient:recipient, message:message}));  
         } 
 
         function send_friend_request_socket(recipient) {
-            send("",recipient,'send_friend_request');
+            send("", recipient, 'send_friend_request');
         }
 
         function send_friend_request_response_socket(recipient,status) {
-            send(status,recipient,'send_friend_request_response');
+            send(status, recipient, 'send_friend_request_response');
         }
         
     </script>
