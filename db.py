@@ -6,7 +6,7 @@ database file, containing all the logic to interface with the sql database
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from models import *
-import random #Should probably select something more secure
+import random # Should probably select something more secure
 import sys
 import common
 
