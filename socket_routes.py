@@ -17,19 +17,26 @@ except ImportError:
 import db
 user_aggregator = user_manager()
 
-    #{
-    #    "message":"messageSTR",
-    #    "sender":"senderHash",
-    #    "recipient":"recipientUsername or hash",
-    #}
+#{
+#    "message":"messageSTR",
+#    "sender":"senderHash",
+#    "recipient":"recipientUsername or hash",
+#}
 
 def relay_friend_requests(user_name:str):
     request = {"requests":db.get_friend_requests(user_name)}
     emit("update_friend_requests",json.dumps(request),room=user_aggregator.get_relay_connection_reference(user_name))
 
-def relay_friends_list(user_name:str):
-    request = {"friends_list":db.get_friends_by_username(user_name)}
-    emit("update_friends_list",json.dumps(request),room=user_aggregator.get_relay_connection_reference(user_name))
+def relay_online_friends_list(user_name:str,notify_friends=True,on_disconnect=False):
+    all_friends = db.get_friends_by_username(user_name)
+    online_friends = []
+    for friend in all_friends:
+        if (user_aggregator.is_online(friend)):
+            online_friends.append(friend)
+            if (notify_friends):
+                relay_online_friends_list(friend,notify_friends=False)
+    if (on_disconnect == False):
+        emit("update_friends_list",json.dumps({"friends_list":online_friends}),room=user_aggregator.get_relay_connection_reference(user_name))
     
 def inform_error(error_msg:str, user_name:str):
     emit("error",error_msg,user_aggregator.get_relay_connection_reference(user_name))
@@ -41,7 +48,13 @@ def connect():
     user_aggregator.recognise_user(user_name, connection_reference)
     
     relay_friend_requests(user_name)
-    relay_friends_list(user_name)
+    relay_online_friends_list(user_name)
+    
+@socketio.on('disconnect')
+def disconnect():
+    user_name = request.cookies.get("username")
+    user_aggregator.unrecognise_user(user_name)
+    relay_online_friends_list(user_name,on_disconnect=True)
 
 @socketio.on("relay")
 def relay(message):
@@ -65,13 +78,8 @@ def send_friend_request_response(message):
             db.append_friends_relationship(message_json['sender'],message_json['recipient'])
         db.delete_friend_request(message_json['sender'],message_json['recipient'])
         
-        relay_friends_list(message_json['sender'])
-        relay_friends_list(message_json['recipient'])
+        relay_online_friends_list(message_json['sender'])
+        relay_online_friends_list(message_json['recipient'])
         
         relay_friend_requests(message_json['sender'])
         relay_friend_requests(message_json['recipient'])
-
-@socketio.on('disconnect')
-def disconnect():
-    user_name = request.cookies.get("username")
-    user_aggregator.unrecognise_user(user_name)

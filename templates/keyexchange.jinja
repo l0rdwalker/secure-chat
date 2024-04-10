@@ -1,0 +1,150 @@
+{% block content %} 
+
+
+
+<script>
+    /*
+        {
+            "message":"messageSTR",
+            "sender":"sender",
+            "recipient":"recipient Username"
+        }
+
+        {
+            type: key_exchange | ciphertext
+            content: some_string
+            sequence_num: some_int
+        }
+    */
+
+    let received_messages = [];
+    let connected_user = null;
+    let known_keys = {};
+
+    function is_valid_message(message) {
+        let valid_message = true;
+        if (!("message" in message)) {
+            valid_message = false;
+        }
+        if (!("sender" in message)) {
+            valid_message = false;
+        }
+        if (!("recipient" in message)) {
+            valid_message = false;
+        }
+        if (!("type" in message["message"])) {
+            valid_message = false;
+        }
+        if (!("content" in message["message"])) {
+            valid_message = false;
+        }
+        if (!("sequence_num" in message["message"])) {
+            valid_message = false;
+        }
+        return valid_message;
+    }
+
+    function check_existing_key(user_name) {
+        return (user_name in known_keys);
+    }
+
+    function receiver(message) {
+        let message_obj = JSON.parse(message);
+        if (is_valid_message(message_obj)) {
+            if (message_obj["sender"] == connected_user && message_obj["type"] == "ciphertext") {
+                //Send message to be decrypted and displayed
+            } else if (message_obj["message"]["type"] == "key_exchange") {
+                if (!(check_existing_key(message_obj["sender"]))) {
+                    respond_key_exchange(relay,message_obj["sender"]);
+                } else {
+
+                }
+                received_messages.push(message_obj);           
+            }
+        }
+    }
+
+</script>
+
+<script>
+    let g = 2
+    let p = 11 //PUT BETTER PRIME HERE! pliz.
+    let secret = localStorage.getItem("key"); //May cause errors or be a security flaw. 
+
+    function craft_key_exchange_communication(content, sequence_num) {
+        return JSON.stringify({
+            type: "key_exchange",
+            content: content,
+            sequence_num: sequence_num
+        });
+    }
+
+    function get_recieved_message(expected_sequence_num,sender) {
+        let found_message;
+        for (var x = 0; x < received_messages.length; x++) {
+            if (received_messages[x]['sender'] == sender) {
+                if (received_messages[x]['message']['sequence_num'] == expected_sequence_num) {
+                    found_message = received_messages[x]['message'];
+                    received_messages.splice(x, 1);
+                    return found_message;
+                }
+            }
+        }
+        return null;
+    }
+
+    async function check_responce_timeout(sequence_num,recipient) {
+        recieved_message = null; 
+        for (let x = 0; x < 5; x++) {
+            recieved_message = get_recieved_message(sequence_num,recipient);
+            if (!(recieved_message == null)) {
+                break;
+            }
+            await new Promise(resolve => setTimeout(resolve, 500));
+            if (x+1 == 5) {
+                throw new Error('Time out error');
+            }
+        }
+        return recieved_message; 
+    }
+
+    async function init_key_exchange(sender_function,recipient) {
+        let public_value = Math.pow(g, secret) % p;
+        let recieved_message = null; 
+
+        let sequence_num = 0; 
+        sender_function(craft_key_exchange_communication("",sequence_num),recipient);
+        
+        sequence_num += 1; 
+        await check_responce_timeout(sequence_num,recipient);
+
+        sequence_num += 1; 
+        sender_function(craft_key_exchange_communication(public_value,sequence_num),recipient);
+        
+        sequence_num += 1; 
+        recieved_message = await check_responce_timeout(sequence_num,recipient);
+
+        shared_key = Math.pow(parseInt(recieved_message['message']['content'], 10), parseInt(secret, 10)) % p;
+        known_keys[recipient] = shared_key;
+    }
+
+    async function respond_key_exchange(sender_function,sender) {
+        let public_value = Math.pow(g, secret) % p;
+        let recieved_message = null; 
+        let sequence_num = 0;
+
+        sequence_num += 1; 
+        sender_function(craft_key_exchange_communication("",sequence_num),sender);
+
+        sequence_num += 1; 
+        recieved_message = await check_responce_timeout(sequence_num,sender);
+
+        sequence_num += 1; 
+        sender_function(craft_key_exchange_communication(public_value,sequence_num),sender);
+
+        shared_key = Math.pow(parseInt(recieved_message['message']['content'], 10), parseInt(secret, 10)) % p;
+        known_keys[sender] = shared_key;
+    }
+</script>
+
+{% endblock %}

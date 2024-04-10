@@ -2,10 +2,6 @@
     <script src="/static/js/libs/socket.io.min.js"></script>
     <script>
         const socket = io();
-        socket.on("incoming", (msg, color="black") => {
-            console.log(msg);
-        })
-
         socket.on("error", (msg, color="black") => {
             alert(message);
         })
@@ -23,5 +19,12 @@
             send(status,recipient,'send_friend_request_response');
         }
         
+
+        /*
+        1: User loads new target username into local variable
+        2: User attempts to contact user to perform a key exchange.
+        */
+
+
     </script>
 {% endblock %}

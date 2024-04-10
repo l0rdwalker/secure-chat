@@ -50,16 +50,17 @@
 </style>
 
 <script>
-    /*
+    //I would prefer to have relay and in-coming functions together. But javascript doesn't let me use functions before they have a definition. :[
     function relay(message,recipient) {
         console.log("sending relay message");
         send(message,recipient,'relay');
     }
-    */
-    
+</script>
+
+<script>
+    let chatting_with = null;
 
     function append_message_content(message,user) {
-        console.log("hit");
         const container = document.getElementById('message_container'); // Ensure this is the correct ID
         let entryHtml = `
         <div class="message_container_content">
@@ -82,10 +83,16 @@
     }
 
     function open_chat(user_name) {
-        
-
         clear_chat();
     }
+</script>
+
+<script>
+    //Handles outgoing messages. 
+    socket.on("incoming", (msg, color="black") => {
+        console.log(msg);
+        receiver(msg);
+    })
 </script>
 
 <div id="chat_window_container">
