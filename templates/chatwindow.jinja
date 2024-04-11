@@ -1,6 +1,7 @@
-
+{% include 'keyexchange.jinja' %}
 
 {% block content %} 
+
 <style>
     #chat_window_container {
         width: 900px;
@@ -60,7 +61,7 @@
 <script>
     let chatting_with = null;
 
-    function append_message_content(message,user) {
+    function append_message_content(message,user) {///Just places the messages on screen. 
         const container = document.getElementById('message_container'); // Ensure this is the correct ID
         let entryHtml = `
         <div class="message_container_content">
@@ -70,7 +71,7 @@
         container.insertAdjacentHTML('beforeend', entryHtml);
     }
 
-    function handle_send() {
+    function handle_send() { //Gets the the user input. And feeds it into append message content. 
         const user_input = document.getElementById("paragraph_input"); 
         let message_content = user_input.value;
         user_input.value = "";
@@ -82,15 +83,17 @@
         document.getElementById("message_container").innerHTML = "";
     }
 
-    function open_chat(user_name) {
+    function open_chat(user_name) { //Working progress.
+        user_name = user_name.name;
+        user_specific_secret_key = init_connection(user_name,relay);
         clear_chat();
     }
+    
 </script>
 
 <script>
     //Handles outgoing messages. 
     socket.on("incoming", (msg, color="black") => {
-        console.log(msg);
         receiver(msg);
     })
 </script>

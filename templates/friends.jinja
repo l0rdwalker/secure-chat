@@ -100,7 +100,7 @@
                     <div class="entry_content">
                         <p>${name}</p>
                         <p style="color:green;">ONLINE</p>
-                        <input type="submit" value="start chat">
+                        <input type="submit" name="${name}" onclick="open_chat(this)" value="start chat">
                     </div>
                 </div>`;
             container.insertAdjacentHTML('beforeend', entryHtml);
@@ -132,7 +132,7 @@
 <div id="friends_container">
     <div id="add_friends_container">
         <div id="centered_friend_search">
-            <p>Add Friend:</p>
+            <p>Add Friend pliz:</p>
             <input type="text" id="friend_add_username" name="friend_add_username">
             <input type="submit" onclick="send_friend_request()" value="send_request">
         </div>

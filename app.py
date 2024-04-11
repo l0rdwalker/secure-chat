@@ -88,5 +88,7 @@ certificate = os.path.join(script_dir,"certs/flaskapp.crt")
 certificatePrivateKey = os.path.join(script_dir,"certs/flaskapp.key")
 
 if __name__ == '__main__':
+    app.jinja_env.auto_reload = True
+    app.config['TEMPLATES_AUTO_RELOAD'] = True
     socketio.run(app,ssl_context=(certificate, certificatePrivateKey))
     
