@@ -21,7 +21,7 @@
 
         socket.on("incoming", function(data), (msg, color="black") => {
             const decryptedMessage = decryptMessage(data.message);
-            print("decrypted: ", decryptedMessage);
+            console.log("decrypted: ", decryptedMessage);
         });
         
         socket.on("error", function(errorMessage), (msg, color="black") => {
@@ -30,7 +30,7 @@
 
         function send(message, recipient, type) {
             const encryptedMessage = encryptMessage(message)
-            print("Sending message");
+            console.log("Sending message");
             socket.emit(type, JSON.stringify({sender: username, recipient: recipient, message: encryptedMessage}));  
         } 
 

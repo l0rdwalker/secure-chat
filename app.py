@@ -11,11 +11,11 @@ import secrets
 import common
 import os
 
-import logging
+# import logging
 
 # this turns off Flask Logging, uncomment this to turn off Logging
-log = logging.getLogger('werkzeug')
-log.setLevel(logging.ERROR)
+# log = logging.getLogger('werkzeug')
+# log.setLevel(logging.ERROR)
 
 app = Flask(__name__)
 
@@ -84,8 +84,8 @@ def home():
     return render_template("home.jinja", username=request.args.get("username"))
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
-certificate = os.path.join(script_dir,"certs/flaskapp.crt")
-certificatePrivateKey = os.path.join(script_dir,"certs/flaskapp.key")
+certificate = os.path.join(script_dir,"certs/luna/flaskapp.crt")
+certificatePrivateKey = os.path.join(script_dir,"certs/luna/flaskapp.key")
 
 if __name__ == '__main__':
     socketio.run(app, ssl_context=(certificate, certificatePrivateKey))

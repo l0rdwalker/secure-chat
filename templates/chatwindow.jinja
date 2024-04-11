@@ -52,7 +52,7 @@
 <script>
 
     function relay(message, recipient) {
-        print("sending relay message");
+        console.log("sending relay message");
         send(message, recipient, 'relay');
     }
     
@@ -80,6 +80,7 @@
         document.getElementById("message_container").innerHTML = "";
     }
 
+    //first function called when a user starts chat
     function open_chat(user_name) {
         clear_chat();
     }

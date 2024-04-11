@@ -26,7 +26,7 @@ import db
 user_aggregator = user_manager()
 
     #{
-    #    "message":"messageSTR",
+    #    "message":"messageSTR", //contents should be encrypted
     #    "sender":"senderHash",
     #    "recipient":"recipientUsername or hash",
     #}
@@ -65,7 +65,7 @@ def decrypt_message(message):
 @socketio.on("relay")
 def relay(message):
     message_json = json.loads(message)
-    encrypted_message = encrypt_message(message_json["message"]) # encrypt message and
+    encrypted_message = encrypt_message(message_json["message"]) # encrypt message
     message_json["message"] = encrypted_message # re-assign it
     recipient_connection_reference = user_aggregator.get_relay_connection_reference(message_json["recipient"])
     emit("incoming", json.dumps(message_json), room=recipient_connection_reference)
