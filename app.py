@@ -10,6 +10,7 @@ import db
 import secrets
 import common
 import os
+import generate_key
 
 # import logging
 
@@ -84,11 +85,18 @@ def home():
     return render_template("home.jinja", username=request.args.get("username"))
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
-certificate = os.path.join(script_dir,"certs/flaskapp.crt")
-certificatePrivateKey = os.path.join(script_dir,"certs/flaskapp.key")
+# certificate = os.path.join(script_dir,"certs/flaskapp.crt")
+# certificatePrivateKey = os.path.join(script_dir,"certs/flaskapp.key")
+
+certificate = os.path.join(script_dir,"certs/luna/flaskapp.crt")
+certificatePrivateKey = os.path.join(script_dir,"certs/luna/flaskapp.key")
 
 if __name__ == '__main__':
     app.jinja_env.auto_reload = True
     app.config['TEMPLATES_AUTO_RELOAD'] = True
+
+    # to call python function jinja
+    #app.jinja_env.globals.update(generate_key=generate_key)
+
     socketio.run(app,ssl_context=(certificate, certificatePrivateKey))
     
