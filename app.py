@@ -4,13 +4,12 @@ this is where you'll find all of the get/post request handlers
 the socket event handlers are inside of socket_routes.py
 '''
 
-from flask import Flask, render_template, request, abort, url_for
+from flask import Flask, render_template, session, redirect, request, abort, url_for
 from flask_socketio import SocketIO
 import db
 import secrets
 import common
 import os
-import generate_key
 
 # import logging
 
@@ -22,7 +21,15 @@ app = Flask(__name__)
 
 # secret key used to sign the session cookie
 app.config['SECRET_KEY'] = secrets.token_hex()
+# cookie_key = app.config['SECRET_KEY']
 socketio = SocketIO(app)
+
+# trying making session
+# session = requests.Session()
+# session.get(f'https://lunaca:5000 / cookies / set / sessioncookie / {cookie_key}')
+# req = session.get('https://lunaca:5000 / cookies')
+# print(req.text)
+
 
 # don't remove this!!
 import socket_routes
@@ -34,11 +41,11 @@ def index():
 
 # login page
 @app.route("/login")
-def login():    
+def login():
     return render_template("login.jinja")
 
 # handles a post request when the user clicks the log in button
-@app.route("/login/user", methods=["POST"])
+@app.route("/login/user", methods=["GET", "POST"])
 def login_user():
     if not request.is_json:
         abort(404)
@@ -49,8 +56,11 @@ def login_user():
     
     if (potential_user == None):
         return "Error: User does not exist!"
-    if (not common.compare_hash(user_hash,potential_user.salt,potential_user.user_hash)):
+    if (not common.compare_hash(user_hash, potential_user.salt, potential_user.user_hash)):
         return "Error: Password does not match!"
+    
+    # user is identified
+    session['username'] = username
 
     return url_for('home', username=username)
 
@@ -68,7 +78,7 @@ def signup_user():
     username = request.json.get("username")    
     user_hash = request.json.get("user_hash")
     if db.get_user_refactored(user_hash) == None:
-        db.insert_user_refactored(user_hash,username)
+        db.insert_user_refactored(user_hash, username)
         
     return "Error: User already exists!"
 
