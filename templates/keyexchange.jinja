@@ -3,23 +3,13 @@
 
 
 <script>
-    /*
-        {
-            "message":"messageSTR",
-            "sender":"sender",
-            "recipient":"recipient Username"
-        }
-
-        {
-            type: key_exchange | ciphertext
-            content: some_string
-            sequence_num: some_int
-        }
-    */
-
-    let received_messages = []; //stores pretty much every incoming message. At the moment. 
-    let connected_user = null;
+    let received_messages = [];
     let known_keys = {};
+    let connected_user = null;
+    let active_key = null; 
+    let g = 2
+    let p = 11 //PUT BETTER PRIME HERE! pliz.
+    let secret = parseInt(sessionStorage.getItem("key"), 10); //May cause errors or be a security flaw. 
 
     //Found online, the regular math.pow can't handle numbers as large as we are using. So. Functions it be. 
     function modularPow(base, exponent, modulus) {
@@ -41,34 +31,33 @@
     }
 
     function receiver(message) { //Accepts all the key-exchange relevent messages. 
-        console.log("triggered reciever");
         let message_obj = JSON.parse(message);
         message_obj['message'] = JSON.parse(message_obj['message']);
-        console.log(JSON.stringify(message_obj));
+        console.log("triggered reciever",message_obj);
 
-        if (message_obj["sender"] == connected_user && message_obj["type"] == "ciphertext") {
-            //Send message to be decrypted and displayed
+        if (message_obj["sender"] == connected_user && message_obj["message"]["type"] == "ciphertext") {
+            console.log("Recieved message from connected user. Appending message");
+            append_message_content(message_obj["message"]['content'],message_obj["sender"]);
         } else if (message_obj["message"]["type"] == "key_exchange") {
-            
-            if (!(check_existing_key(message_obj["sender"])) && (message_obj['message']['sequence_num'] == 0)) {
-                respond_key_exchange(relay,message_obj["sender"]); //If this is the first messages recieved to init a key exchange, it goes straight to the respond to exchange funcion
+            if (message_obj['message']['sequence_num'] == 0) {
+                console.log("Responding to key exchange");
+                respond_key_exchange(message_obj["sender"]); //If this is the first messages recieved to init a key exchange, it goes straight to the respond to exchange funcion
             } else {
-                received_messages.push(message_obj);   ///Storeing messages for the get recieved message to check, which is done during key exchanges.
-            }  
-                  
+                received_messages.push(message_obj);
+                console.log("Storing message for pass over.");
+            }           
         }
-        
     }
 
-    async function init_connection(reciever_user_name,sender_function) {
+    async function init_connection(reciever_user_name) {
+        if (!(check_existing_key(reciever_user_name))) {
+            await init_key_exchange(reciever_user_name);
+        }
         if (check_existing_key(reciever_user_name)) {
-            return known_keys[reciever_user_name];
-        } else {
-            init_key_exchange(sender_function,reciever_user_name);
+            connected_user = reciever_user_name;
+            active_key = known_keys[reciever_user_name];
         }
-        return null;
     }
-
 </script>
 
 <script>
@@ -111,6 +100,14 @@
         });
     }
 
+    function craft_message_communication(message) {
+        return JSON.stringify({
+            type: "ciphertext",
+            content: message,
+            sequence_num: null
+        });
+    }
+
     function get_recieved_message(expected_sequence_num,sender) {
         let found_message;
         for (var x = 0; x < received_messages.length; x++) {
@@ -128,70 +125,53 @@
     async function check_responce_timeout(sequence_num,recipient) {
         recieved_message = null; 
         for (let x = 0; x < 5; x++) {
+            console.log("Checking");
             recieved_message = get_recieved_message(sequence_num,recipient);
             if (!(recieved_message == null)) {
                 break;
             }
             await new Promise(resolve => setTimeout(resolve, 500));
-            if (x+1 == 5) {
-                throw new Error('Time out error');
-            }
         }
-        console.log("We recieved the following message",recieved_message);
         return recieved_message; 
     }
 
-    async function init_key_exchange(sender_function,recipient) {
-        var public_value = modularPow(g, secret, p);
-        console.log("My public value is",public_value);
+    async function init_key_exchange(recipient) {
+        var public_value = modularPow(g,secret,p);
         let recieved_message = null; 
         
-        console.log("sending init message to reciever");
         let sequence_num = 0; 
-        sender_function(craft_key_exchange_communication("",sequence_num),recipient);
+        relay(craft_key_exchange_communication("",sequence_num),recipient);
         
         sequence_num += 1; 
         await check_responce_timeout(sequence_num,recipient);
-        console.log("We recieved a responce.")
 
-        console.log("We are going to send over our public value",public_value);
         sequence_num += 1; 
-        sender_function(craft_key_exchange_communication(public_value,sequence_num),recipient);
+        relay(craft_key_exchange_communication(public_value,sequence_num),recipient);
         
         sequence_num += 1; 
         recieved_message = await check_responce_timeout(sequence_num,recipient);
-        console.log("We recieved a message. Recieved message: ",recieved_message);
 
-        shared_key = modularPow(recieved_message['content'],secret,p);
-        known_keys[recipient] = shared_key;
-        console.log(shared_key);
+        if (!(recieved_message == null)){
+            known_keys[recipient] = modularPow(recieved_message['content'],secret,p);
+            console.log("shared key established:",known_keys[recipient]);
+        }
     }
 
-    async function respond_key_exchange(sender_function,sender) {
-        console.log(secret,g,p);
+    async function respond_key_exchange(sender) {
         var public_value = modularPow(g,secret,p);
-        console.log("My public value is",public_value);
         let recieved_message = null; 
-        let sequence_num = 0;
 
-        console.log("Recieved key exchange request!");
-
-        sequence_num += 1; 
-        sender_function(craft_key_exchange_communication("",sequence_num),sender);
-        
-        console.log("Sent a responce ping");
+        let sequence_num = 1;
+        relay(craft_key_exchange_communication("",sequence_num),sender);
 
         sequence_num += 1; 
         recieved_message = await check_responce_timeout(sequence_num,sender);
-        console.log("Recieved a public exponent",recieved_message);
 
         sequence_num += 1; 
-        sender_function(craft_key_exchange_communication(public_value,sequence_num),sender);
-        console.log("Sent my public component");
+        relay(craft_key_exchange_communication(public_value,sequence_num),sender);
 
-        shared_key = modularPow(recieved_message['content'],secret,p);
-        known_keys[sender] = shared_key;
-        console.log(shared_key);
+        known_keys[sender] = modularPow(recieved_message['content'],secret,p);
+        console.log("shared key established:",known_keys[sender]);
     }
 </script>
 
