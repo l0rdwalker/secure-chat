@@ -34,7 +34,7 @@
             let secret_key = await sha256($("#password").val());
             
             sessionStorage.setItem("key", secret_key);
-            console.log(user_hash);
+            //console.log(user_hash);
 
             let res = await axios.post(loginURL, {
                 username: $("#username").val(),

@@ -6,8 +6,10 @@ database file, containing all the logic to interface with the sql database
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from models import *
+import datetime
 import random #Should probably select something more secure
 import sys
+import json
 import common
 
 from pathlib import Path
@@ -115,3 +117,36 @@ def get_friends_by_username(user_name:str):
             for relationship in right_column_detection:
                 just_names.append(relationship.user_one)
             return just_names
+        
+def record_message(user_one,user_two,message):
+    if (is_valid_username(user_one) == is_valid_username(user_two) == True):
+        with Session(engine) as session:
+            message_instance = message_history(user_one = user_one, user_two = user_two, message = message, time_stamp = int(datetime.datetime.now().timestamp()))
+            session.add(message_instance)
+            session.commit()
+            
+def get_message_history_db(user_one, user_two):
+    if (is_valid_username(user_one) == is_valid_username(user_two) == True):
+        with Session(engine) as session:
+            left_comumn_detection = session.query(message_history).filter(message_history.user_one == user_one).filter(message_history.user_two == user_two).all()
+            right_column_detection = session.query(message_history).filter(message_history.user_two == user_one).filter(message_history.user_one == user_two).all()
+            
+            left_comumn_detection.extend(right_column_detection)
+            left_comumn_detection = sorted(left_comumn_detection, key=lambda friends_list:friends_list.time_stamp)
+            
+            formatted_messages = []
+            for message in left_comumn_detection:
+                formatted_messages.append(
+                    json.dumps(
+                        {
+                            "user":message.user_one,
+                            "message":message.message
+                        }
+                    )
+                )
+            
+            return json.dumps(
+                {
+                    "messages" : formatted_messages
+                }
+            )

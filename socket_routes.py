@@ -59,8 +59,19 @@ def disconnect():
 @socketio.on("relay")
 def relay(message):
     message_json = json.loads(message)
+    message_content_json = json.loads(message_json['message'])
     recipient_connection_reference = user_aggregator.get_relay_connection_reference(message_json["recipient"])
+    
+    if (message_content_json['type'] == "ciphertext"):
+        db.record_message(message_json['sender'],message_json['recipient'],message_content_json['content'])
+    
     emit("incoming",message,room=recipient_connection_reference)
+    
+@socketio.on("get_message_history")
+def get_message_history(message):
+    message_json = json.loads(message)
+    history = db.get_message_history_db(message_json['sender'],message_json['recipient'])
+    emit("message_history",history,room=user_aggregator.get_relay_connection_reference(message_json['sender']))
 
 @socketio.on("send_friend_request") 
 def send_friend_request(message):

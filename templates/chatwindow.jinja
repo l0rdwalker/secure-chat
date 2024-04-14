@@ -4,14 +4,20 @@
 
 <style>
     #chat_window_container {
-        width: 900px;
+        width: 100%;
         height: 600px;
         border:1px solid black;
         display: flex;
         flex-direction: column;
     }
+
+    #chat_window_container h3 {
+        text-align: center;
+    }
+
     #top_view {
         background-color: rgb(222, 222, 222);
+        border:1px solid black;
         flex: 3;
         max-height: 100%;
         overflow: auto;
@@ -53,14 +59,11 @@
 <script>
     //I would prefer to have relay and in-coming functions together. But javascript doesn't let me use functions before they have a definition. :[
     function relay(message,recipient) {
-        console.log("sending relay message");
         send(message,recipient,'relay');
     }
 </script>
 
 <script>
-    let chatting_with = null;
-
     function append_message_content(message,user) {///Just places the messages on screen. 
         const container = document.getElementById('message_container'); // Ensure this is the correct ID
         let entryHtml = `
@@ -76,7 +79,8 @@
         let message_content = user_input.value;
         user_input.value = "";
 
-        append_message_content(message_content,'ME!');
+        append_message_content(message_content,username);
+        relay(craft_message_communication(message_content),connected_user);
     }
 
     function clear_chat() {
@@ -84,9 +88,11 @@
     }
 
     function open_chat(user_name) { //Working progress.
-        user_name = user_name.name;
-        user_specific_secret_key = init_connection(user_name,relay);
+        user_name = user_name.name; //We've passed in a HTML element, html elements have attributes. E.g. <div id="foo" name="bar"> we access these attributes like if they were OOP. 
+        document.getElementById("connected_user_text").innerText = user_name;
+        init_connection(user_name);
         clear_chat();
+        get_message_history(user_name);
     }
     
 </script>
@@ -96,9 +102,19 @@
     socket.on("incoming", (msg, color="black") => {
         receiver(msg);
     })
+
+    socket.on("message_history", (msg, color="black") => {
+        var message_history_obj = JSON.parse(msg);
+        for (var i = 0; i < message_history_obj['messages'].length; i++) {
+            var specific_message_obj = JSON.parse(message_history_obj['messages'][i]);
+            append_message_content(specific_message_obj['message'],specific_message_obj['user']);
+        }
+        console.log("chat history",message_history_obj);
+    })
 </script>
 
 <div id="chat_window_container">
+    <h3>Chatting with: <span id="connected_user_text"></span></h3>
     <div id="top_view">
         
         <div id="message_container">
@@ -115,6 +131,4 @@
 
     </div>
 </div>
-
-<button onclick="open_chat('William Walker')">New Chat</button>
 {% endblock %}

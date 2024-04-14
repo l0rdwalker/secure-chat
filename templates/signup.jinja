@@ -23,12 +23,10 @@ Sign up page, pretty much the same as login.
             return false;
         }
 
-        // this function is identical to login(), see login.jinja
         async function signup() {
             let sign_up_url = "{{ url_for('signup_user') }}";
 
             let user_hash = await sha256($("#username").val(),$("#password").val());
-            console.log(user_hash);
             
             let res = await axios.post(sign_up_url, {
                 username: $("#username").val(),

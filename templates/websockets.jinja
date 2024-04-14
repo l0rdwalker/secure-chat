@@ -7,8 +7,9 @@
         })
 
         function send(message,recipient,type) {
-            console.log("Sending message");
-            socket.emit(type,JSON.stringify({sender: username, recipient:recipient, message:message}));  
+            var communication = JSON.stringify({sender: username, recipient:recipient, message:message});
+            console.log("Sending message",communication);
+            socket.emit(type,communication);  
         } 
 
         function send_friend_request_socket(recipient) {
@@ -17,6 +18,10 @@
 
         function send_friend_request_response_socket(recipient,status) {
             send(status,recipient,'send_friend_request_response');
+        }
+
+        function get_message_history(recipient) {
+            send("",recipient,"get_message_history");
         }
         
 

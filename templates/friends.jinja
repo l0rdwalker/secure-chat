@@ -2,14 +2,13 @@
 
 <style>
 #friends_container {
-    width: 900px;
+    width: 100%;
     height: 600px;
     border:1px solid black;
 }
 #add_friends_container {
     width: 100%;
     height: fit-content;
-    background-color: rgb(204, 204, 204);
 }
 #centered_friend_search {
     width: fit-content;
@@ -63,7 +62,7 @@
 
 <script>
     function respond_friend_request(acceptence, requesting_username) {
-        console.log(acceptence,requesting_username);
+        ////console.log(acceptence,requesting_username);
         send_friend_request_response_socket(requesting_username,acceptence);
     }
 
@@ -109,22 +108,22 @@
 
     socket.on("update_friend_requests", (msg, color="black") => {
         friend_request_data = JSON.parse(msg)['requests']; // Parse and assign before calling the function
-        console.log("update friend requests");
+        ////console.log("update friend requests");
         clear_friend_requests();
         update_friend_requests_setter(friend_request_data); // Call the function after setting friendRequestsData
     })
 
     socket.on("update_friends_list", (msg, color="black") => {
         friend_request_data = JSON.parse(msg)['friends_list']; // Parse and assign before calling the function
-        console.log(friend_request_data);
+        //console.log(friend_request_data);
         clear_friends_list();
         update_friends_list_setter(friend_request_data);
     })
 
     function send_friend_request() {
-        console.log("clicked send friend request");
+        //console.log("clicked send friend request");
         let friend_user_name = document.getElementById("friend_add_username").value;
-        console.log(friend_user_name);
+        //console.log(friend_user_name);
         send_friend_request_socket(friend_user_name);
     }
 </script>
