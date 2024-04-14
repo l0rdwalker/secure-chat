@@ -11,12 +11,6 @@ import secrets
 import common
 import os
 
-# import logging
-
-# this turns off Flask Logging, uncomment this to turn off Logging
-# log = logging.getLogger('werkzeug')
-# log.setLevel(logging.ERROR)
-
 app = Flask(__name__)
 
 # secret key used to sign the session cookie
@@ -44,14 +38,9 @@ def login_user():
 
     user_hash = request.json.get("user_hash")
     username = request.json.get("username")
-    potential_user = db.get_user_by_username(username)
-    
-    if (potential_user == None):
-        return "Error: User does not exist!"
-    if (not common.compare_hash(user_hash,potential_user.salt,potential_user.user_hash)):
-        return "Error: Password does not match!"
 
-    return url_for('home', username=username)
+    if (socket_routes.validate_user(username,user_hash)):
+        return url_for('home')
 
 # handles a get request to the signup page
 @app.route("/signup")
@@ -68,7 +57,7 @@ def signup_user():
     user_hash = request.json.get("user_hash")
     if db.get_user_refactored(user_hash) == None:
         db.insert_user_refactored(user_hash,username)
-        
+        return url_for('home')   
     return "Error: User already exists!"
 
 # handler when a "404" error happens
@@ -79,9 +68,7 @@ def page_not_found(_):
 # home page, where the messaging app is
 @app.route("/home")
 def home():
-    if request.args.get("username") is None:
-        abort(404)
-    return render_template("home.jinja", username=request.args.get("username"))
+    return render_template("home.jinja")
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 certificate = os.path.join(script_dir,"certs/flaskapp.crt")

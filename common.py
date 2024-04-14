@@ -6,3 +6,4 @@ def salt_hash(original_hash,salt):
 def compare_hash(original_hash,salt,salted_hash):
     check_hash_salt = salt_hash(original_hash,salt)
     return (check_hash_salt == salted_hash)
+

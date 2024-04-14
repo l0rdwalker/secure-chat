@@ -29,24 +29,32 @@
     }
 </style>
 
-    {% include 'websockets.jinja' %}
-
     <script>
-        let friend_requests=['bob','alex','fred'];
-        let username = "{{ username }}";
-        Cookies.set('username', username);
+        let friend_requests=[];
+        let username = sessionStorage.getItem("username");
+        let user_hash = sessionStorage.getItem("user_hash");
+
+        document.cookie = "username="+username;
+        document.cookie = "user_hash="+user_hash;
+
+        document.addEventListener("on")
     </script>
+
+    {% include 'websockets.jinja' %}
 
     <nav style="border-bottom: 1px solid black;">
         <ol style="float: right">
-            <li style="display:inline-block">Username:  {{ username }} </li>
+            <li style="display:inline-block">Username: <span id="user_name_display"></span></li>
         </ol>
     </nav>
+
+    <script>
+        document.getElementById("user_name_display").innerText = username; //Very quick fix. Not that this is much better........
+    </script>
 
     <h1>Messaging App </h1>
 
     <main>
-
         <div id="component_division">
             <div id="component">
                 {% include 'chatwindow.jinja' %}
@@ -55,9 +63,6 @@
                 {% include 'friends.jinja' %}
             </div>
         </div>
-
-        <button onclick="relay('Hello how are you','test')">Send Dummy Message</button>
-        <button onclick="send_friend_request_socket('test')">Send Friend Request to User test2</button>
     </main>
 
 

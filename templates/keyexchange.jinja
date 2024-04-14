@@ -3,24 +3,13 @@
 
 
 <script>
-    /*
-        {
-            "message":"messageSTR",
-            "sender":"sender",
-            "recipient":"recipient Username"
-        }
-
-        {
-            type: key_exchange | ciphertext
-            content: some_string
-            sequence_num: some_int
-        }
-    */
-
-    let received_messages = []; //stores pretty much every incoming message. At the moment. 
+    let received_messages = [];
     let known_keys = {};
     let connected_user = null;
     let active_key = null; 
+    let g = 2
+    let p = 11 //PUT BETTER PRIME HERE! pliz.
+    let secret = parseInt(sessionStorage.getItem("key"), 10); //May cause errors or be a security flaw. 
 
     //Found online, the regular math.pow can't handle numbers as large as we are using. So. Functions it be. 
     function modularPow(base, exponent, modulus) {
@@ -50,39 +39,28 @@
             console.log("Recieved message from connected user. Appending message");
             append_message_content(message_obj["message"]['content'],message_obj["sender"]);
         } else if (message_obj["message"]["type"] == "key_exchange") {
-            if (!(check_existing_key(message_obj["sender"])) && (message_obj['message']['sequence_num'] == 0)) {
+            if (message_obj['message']['sequence_num'] == 0) {
                 console.log("Responding to key exchange");
                 respond_key_exchange(message_obj["sender"]); //If this is the first messages recieved to init a key exchange, it goes straight to the respond to exchange funcion
             } else {
-                received_messages.push(message_obj);   ///Storeing messages for the get recieved message to check, which is done during key exchanges.
+                received_messages.push(message_obj);
                 console.log("Storing message for pass over.");
-            }  
-                  
-        } else {
-            console.log("ERROR! NO VALID OPTION!");
+            }           
         }
     }
 
     async function init_connection(reciever_user_name) {
-        if (check_existing_key(reciever_user_name)) {
-            active_key = known_keys[reciever_user_name];
-        } else {
-            init_key_exchange(reciever_user_name);
+        if (!(check_existing_key(reciever_user_name))) {
+            await init_key_exchange(reciever_user_name);
         }
-        connected_user = reciever_user_name;
+        if (check_existing_key(reciever_user_name)) {
+            connected_user = reciever_user_name;
+            active_key = known_keys[reciever_user_name];
+        }
     }
-
 </script>
 
 <script>
-    let g = 2
-    let p = 11 //PUT BETTER PRIME HERE! pliz.
-    let secret = parseInt(sessionStorage.getItem("key"), 10); //May cause errors or be a security flaw. 
-
-    //sessionStorage.getItem("key") This is the password hash
-    //parseInt attempts to convert to int. Does a terrible job. 
-    //Seed psudo-random number generater with hash, make it spit out a large number. 
-
     function craft_key_exchange_communication(content, sequence_num) {
         return JSON.stringify({
             type: "key_exchange",
@@ -116,14 +94,12 @@
     async function check_responce_timeout(sequence_num,recipient) {
         recieved_message = null; 
         for (let x = 0; x < 5; x++) {
+            console.log("Checking");
             recieved_message = get_recieved_message(sequence_num,recipient);
             if (!(recieved_message == null)) {
                 break;
             }
             await new Promise(resolve => setTimeout(resolve, 500));
-            if (x+1 == 5) {
-                throw new Error('Time out error');
-            }
         }
         return recieved_message; 
     }
@@ -144,8 +120,10 @@
         sequence_num += 1; 
         recieved_message = await check_responce_timeout(sequence_num,recipient);
 
-        known_keys[recipient] = modularPow(recieved_message['content'],secret,p);
-        console.log("shared key established:",known_keys[recipient]);
+        if (!(recieved_message == null)){
+            known_keys[recipient] = modularPow(recieved_message['content'],secret,p);
+            console.log("shared key established:",known_keys[recipient]);
+        }
     }
 
     async function respond_key_exchange(sender) {

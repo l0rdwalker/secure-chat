@@ -28,13 +28,16 @@
 
         // login function to well login...
         async function login() {
+            sessionStorage.setItem("key", "");
+            
             let loginURL = "{{ url_for('login_user') }}";
 
             let user_hash = await sha256($("#username").val(),$("#password").val());
             let secret_key = await sha256($("#password").val());
             
             sessionStorage.setItem("key", secret_key);
-            //console.log(user_hash);
+            sessionStorage.setItem("user_hash", user_hash);
+            sessionStorage.setItem("username", $("#username").val());
 
             let res = await axios.post(loginURL, {
                 username: $("#username").val(),
