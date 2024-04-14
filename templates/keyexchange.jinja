@@ -74,13 +74,34 @@
 <script>
     let g = 2
     let p = 11 //PUT BETTER PRIME HERE! pliz.
-    let secret = parseInt(sessionStorage.getItem("key"), 10); //May cause errors or be a security flaw. 
-    //This can be done by creating a python function embedded here
-    //python: set secret = int(sessionStorage.getItem("key"), 16)
+    var hash = sessionStorage.getItem("key")
+    console.log("hash is " + hash);
+    
+    //iterate through hex hash and convert to decimal
+    var seed = 0;
+    var j = hash.length - 1;
+    for(let i = 0; i < hash.length; i++){
+        let number = parseInt(hash.charAt(i), 16);
+        seed += number * (16 ** j)
+        console.log("parsed " + hash.charAt(i) + " to " + parseInt(hash.charAt(i), 16) % 16);
+        j -= 1;
+    }
+    console.log("calculated seed = " + seed);
 
-    //sessionStorage.getItem("key") This is the password hash
-    //parseInt attempts to convert to int. Does a terrible job. 
-    //Seed psudo-random number generater with hash, make it spit out a large number. 
+    //set seed
+    const randomGenerator = new custom_random(seed)
+    console.log("key generated: " + randomGenerator.next());
+
+    //calculate random number from seed
+    function custom_random(seed) {
+        let state = seed;
+
+        this.next = function() {
+            state = (state * 9301 + 49297) % 9991548902539077689835780616603752428580731493961293799648588268547596371700;
+            return state;
+        };
+    }
+
 
     function craft_key_exchange_communication(content, sequence_num) {
         return JSON.stringify({
