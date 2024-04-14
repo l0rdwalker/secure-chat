@@ -45,9 +45,10 @@ def login():
     return render_template("login.jinja")
 
 # handles a post request when the user clicks the log in button
-@app.route("/login/user", methods=["GET", "POST"])
+@app.route("/login/user", methods=["POST"])
 def login_user():
     if not request.is_json:
+        print("here")
         abort(404)
 
     user_hash = request.json.get("user_hash")
@@ -63,6 +64,7 @@ def login_user():
     session['username'] = username
 
     return url_for('home', username=username)
+    #return redirect(url_for('home', username=username))
 
 # handles a get request to the signup page
 @app.route("/signup")
@@ -90,9 +92,21 @@ def page_not_found(_):
 # home page, where the messaging app is
 @app.route("/home")
 def home():
-    if request.args.get("username") is None:
-        abort(404)
-    return render_template("home.jinja", username=request.args.get("username"))
+    
+    # Render Jinja template with session data
+    return render_template('home.jinja')
+
+
+    # if 'username' in session:
+    #     username = session['username']
+    #     secret_key = session['secret_key']
+    #     return render_template('home.jinja', username=username, secret_key=secret_key)
+    # return redirect(url_for('login'))
+
+
+    # if request.args.get("username") is None:
+    #     abort(404)
+    # return render_template("home.jinja", username=request.args.get("username"))
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 # certificate = os.path.join(script_dir,"certs/flaskapp.crt")

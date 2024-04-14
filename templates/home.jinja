@@ -24,6 +24,7 @@
     {% include 'websockets.jinja' %}
 
     <script>
+        //var secretKey = "{{ secret_key }}";
         let friend_requests=['bob','alex','fred'];
         let username = "{{ username }}";
         Cookies.set('username', username);
