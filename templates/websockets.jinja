@@ -4,6 +4,7 @@
         console.log(document.cookie);
 
         const socket = io();
+
         socket.on("error", (msg, color="black") => {
             alert(msg);
             console.log("there was an error");
