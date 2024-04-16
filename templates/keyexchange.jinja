@@ -42,7 +42,7 @@
     }
 
     
-    function custom_rand_key(){
+    function custom_rand_key() {
         let seed = custom_parseInt();
 
         //set seed
@@ -82,8 +82,24 @@
 
         if (message_obj["sender"] == connected_user && message_obj["message"]["type"] == "ciphertext") {
             console.log("Recieved message from connected user. Appending message");
-            //TODO: add another check with hmac
-            //calculate hmac again
+
+            //hmac is calculated over encrypted message previously
+            //follow the same step
+            let received_hmac = calc_hmac(message_obj['message'], connected_user);
+
+            //TODO: how to access hmac object? Why are we accessing message using message not content?
+            if(received_hmac == message_obj["hmac"]){
+                console.log("message authenticated!");
+                //message authentication code matches
+
+                //now decrypt message
+                //TODO: modify decryptMessage and encryptMessage to use a shared private key
+                //TODO: could use code from the article
+                let decrypted_msg = 
+            }else{
+                console.log("message has been tampered with :(");
+            }
+
 
             //TODO: decrypt with key known_keys{connected_user}
             append_message_content(decryptMessage(message_obj["message"]['content']),message_obj["sender"]);
@@ -123,7 +139,7 @@
         });
     }
 
-    function craft_message_communication(message, connected_user) {
+    function calc_hmac(message, connected_user) {
 
         shared_key = known_keys{connected_user};
         
@@ -131,7 +147,16 @@
         let result = message.concat(shared_key);
 
         //calculate hash from concatenated message
-        hashMAC = sha256(result);
+        hmac = sha256(result);
+
+        return hmac;
+
+    }
+
+    function craft_message_communication(message, connected_user) {
+        
+        //calculate hmac of encrypted message
+        let hashMac = calc_hmac(message, connected_user);
 
         //and put it into json
         return JSON.stringify({
