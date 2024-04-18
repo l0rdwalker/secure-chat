@@ -57,8 +57,6 @@
 </style>
 
 <script>
-    //const AES_KEY = CryptoJS.enc.Utf8.parse(randomGenerator.next());
-    //const AES_IV = CryptoJS.enc.Utf8.parse(randomGenerator.next());
 
     //I would prefer to have relay and in-coming functions together. But javascript doesn't let me use functions before they have a definition. :[
     function relay(message,recipient) {
@@ -67,15 +65,32 @@
 
     // Function to encrypt a message using AES
     // make functions to take in keys as parameter
-    function encryptMessage(message, AES_KEY, AES_IV) {
-        const encrypted = CryptoJS.AES.encrypt(message, AES_KEY, { iv: AES_IV });
-        return encrypted.toString();
+    function encryptMessage(message, key) {
+
+        const plainTextBuffer = new TextEncoder().encode(message);
+        const iv = crypto.getRandomValues(new Uint8Array(12));
+        const algorithm = { name: 'AES-GCM', iv };
+        const keyObject = await crypto.subtle.importKey('raw', key, algorithm, false, ['encrypt']);
+        const encryptedMessage = await crypto.subtle.encrypt(algorithm, keyObject, message);
+
+        let IVsemi = iv.concat(';');
+        let IVencryptedMessage = IVsemi.concat(encryptedMessage);
+        return IVencryptedMessage;
     }
 
     // Function to decrypt a message using AES
-    function decryptMessage(encryptedMessage, AES_KEY, AES_IV) {
-        const decrypted = CryptoJS.AES.decrypt(encryptedMessage, AES_KEY, { iv: AES_IV });
-        return decrypted.toString(CryptoJS.enc.Utf8);
+    function decryptMessage(encryptedMessage, key) {
+
+        //separate IV from encryptedMessage
+        
+        let indexOfIV = encryptedMessage.indexOf(";");
+        let IV = encryptedMessage.substring(0, indexOfIV).trim();
+        let encryptedMessage = encryptedMessage.substring(indexOfIV + 1).trim();
+
+        const algorithm = { name: 'AES-GCM', iv };
+        const keyObject = await crypto.subtle.importKey('raw', key, algorithm, false, ['decrypt']);
+        const decryptedData = await crypto.subtle.decrypt(algorithm, keyObject, encryptedMessage);
+        return decryptedData;
     }
 </script>
 
@@ -97,11 +112,12 @@
             user_input.value = "";
 
             append_message_content(message_content,username);
-
-            message_content = encryptMessage(message_content);
+            
+            //MSG is IV concatenated with message content
+            let MSG = encryptMessage(message_content, known_keys{connected_user});
             
             //relay encrytped message
-            relay(craft_message_communication(message_content, connected_user), connected_user);            
+            relay(craft_message_communication(MSG, connected_user), connected_user);            
         } else {
             alert("There is no user connected");
         }

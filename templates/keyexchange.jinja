@@ -10,6 +10,7 @@
     let g = 2
     let p = 11 //PUT BETTER PRIME HERE! pliz.
 
+    import { encryptMessage, decryptMessage } from 'templates/chatwindow.jinja';
 
     function custom_parseInt() {
 
@@ -87,22 +88,17 @@
             //follow the same step
             let received_hmac = calc_hmac(message_obj['message'], connected_user);
 
-            //TODO: how to access hmac object? Why are we accessing message using message not content?
             if(received_hmac == message_obj["hmac"]){
                 console.log("message authenticated!");
                 //message authentication code matches
 
                 //now decrypt message
-                //TODO: modify decryptMessage and encryptMessage to use a shared private key
-                //TODO: could use code from the article
-                let decrypted_msg = 
+                let decrypted_msg = decryptMessage(message_obj["message"]["content"], known_keys{connected_user});
+
+                append_message_content(decryptMessage, message_obj["sender"]);
             }else{
                 console.log("message has been tampered with :(");
             }
-
-
-            //TODO: decrypt with key known_keys{connected_user}
-            append_message_content(decryptMessage(message_obj["message"]['content']),message_obj["sender"]);
         } else if (message_obj["message"]["type"] == "key_exchange") {
             if (message_obj['message']['sequence_num'] == 0) {
                 console.log("Responding to key exchange");
@@ -126,11 +122,7 @@
 </script>
 
 <script>
-    //let g = 2
-    //let p = 11 //PUT BETTER PRIME HERE! pliz.
 
-
-    //TODO: do I call random_key function here? -> could pass in json
     function craft_key_exchange_communication(content, sequence_num) {
         return JSON.stringify({
             type: "key_exchange",
@@ -159,10 +151,11 @@
         let hashMac = calc_hmac(message, connected_user);
 
         //and put it into json
+        //content contains IV and message
         return JSON.stringify({
             type: "ciphertext",
             content: message,
-            sequence_num: null
+            sequence_num: null,
             hmac: hashMAC
         });
     }
