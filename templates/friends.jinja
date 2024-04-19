@@ -62,7 +62,6 @@
 
 <script>
     function respond_friend_request(acceptence, requesting_username) {
-        ////console.log(acceptence,requesting_username);
         send_friend_request_response_socket(requesting_username,acceptence);
     }
 
@@ -78,16 +77,30 @@
 
     function update_friend_requests_setter(friend_requests) {
         let container = document.getElementById('friend_requests'); // Ensure this is the correct ID
-        friend_requests.forEach(name => {
-            let entryHtml = `
-            <div class="entry">
-                <div class="entry_content">
-                    <p>${name}</p>
-                    <input type="submit" onclick="respond_friend_request(true,'${name}')" value="accept" style="background-color: rgb(204, 255, 126);">
-                    <input type="submit" onclick="respond_friend_request(false,'${name}')" value="reject" style="background-color: rgb(255, 117, 117);">
-                </div>
-            </div>`;
-            container.insertAdjacentHTML('beforeend', entryHtml);
+        friend_requests.forEach(request => {
+            let element;
+            console.log(request);
+            if (request[1] == "pending") {
+                element = `
+                <div class="entry">
+                    <div class="entry_content">
+                        <p>${request[0]}</p>
+                        <p>pending</p>
+                    </div>
+                </div>`;                
+            } else {
+                element = `
+                <div class="entry">
+                    <div class="entry_content">
+                        <p>${request[0]}</p>
+                        <input type="submit" onclick="respond_friend_request(true,'${request[0]}')" value="accept" style="background-color: rgb(204, 255, 126);">
+                        <input type="submit" onclick="respond_friend_request(false,'${request[0]}')" value="reject" style="background-color: rgb(255, 117, 117);">
+                    </div>
+                </div>`;               
+            }
+            container.insertAdjacentHTML('beforeend', element); 
+            
+
         });
     }
 

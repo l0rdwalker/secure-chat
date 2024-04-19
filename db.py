@@ -9,6 +9,7 @@ from models import *
 import datetime
 import random #Should probably select something more secure
 import sys
+import os
 import json
 import common
 
@@ -47,7 +48,7 @@ def get_user_by_username(user_name: str):
         return session.query(user_refactored_salted).filter(user_refactored_salted.user_name == user_name).first()
     
 def insert_user_refactored(user_hash,user_name):
-    salt = random.randint(0, sys.maxsize)
+    salt = int.from_bytes(os.urandom(8), byteorder="big") & ((1 << 63) - 1)
     salted_hash = common.salt_hash(user_hash,salt)
 
     with Session(engine) as session:
@@ -65,9 +66,12 @@ def duplicate_friend_request_check(sender_user_name,receiver_user_name):
 def get_friend_requests(user_name):
     with Session(engine) as session:
         requests = session.query(friend_request).filter(friend_request.receiver == user_name).all()
+        sent_requests = session.query(friend_request).filter(friend_request.sender == user_name).all()
         just_names = []
         for request in requests:
-            just_names.append(request.sender)
+            just_names.append([request.sender,'request'])
+        for request in sent_requests:
+            just_names.append([request.sender,'pending'])
         return just_names
     
 def delete_friend_request(sender_user_name,receiver_user_name):

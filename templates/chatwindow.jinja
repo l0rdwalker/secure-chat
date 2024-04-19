@@ -74,14 +74,14 @@
         container.insertAdjacentHTML('beforeend', entryHtml);
     }
 
-    function handle_send() { //Gets the the user input. And feeds it into append message content. 
+    async function handle_send() { //Gets the the user input. And feeds it into append message content. 
         const user_input = document.getElementById("paragraph_input"); 
         if (connected_user != null) {
             let message_content = user_input.value;
             user_input.value = "";
             
             append_message_content(message_content,username);
-            relay(craft_message_communication(message_content),connected_user);            
+            await relay(craft_message_communication(message_content),connected_user);            
         } else {
             alert("There is no user connected");
         }

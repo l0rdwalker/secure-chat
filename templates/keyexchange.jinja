@@ -1,29 +1,45 @@
+{% include 'primegenerator.jinja' %}
 {% block content %} 
 
-
+<script src="https://cdn.jsdelivr.net/npm/crypto-js@3.1.9-1/crypto-js.js"></script>
+<script src="https://peterolson.github.io/BigInteger.js/BigInteger.min.js"></script>
 
 <script>
+    function custom_parseInt(hash) {
+        var seed = "";
+        for(let i = 0; i < hash.length; i++){
+            let number = parseInt(hash.charAt(i), 16);
+            seed += parseInt(hash.charAt(i), 16).toString();
+        }
+        return seed;
+    }
+
+    function custom_rand_key(hash) {
+        let seed = custom_parseInt(hash);
+
+        return bigInt(seed);
+    }
+
     let received_messages = [];
     let known_keys = {};
     let connected_user = null;
-    let active_key = null; 
-    let g = 2
-    let p = 11 //PUT BETTER PRIME HERE! pliz.
-    let secret = parseInt(sessionStorage.getItem("key"), 10); //May cause errors or be a security flaw. 
 
-    //Found online, the regular math.pow can't handle numbers as large as we are using. So. Functions it be. 
+    let g = bigInt(1231);
+    let p = get_prime();//9007199254740881; //Largest prime we can make work. 
+    let secret = custom_rand_key(sessionStorage.getItem("key"));
+
+    function encrypt(message) {
+        return message;
+    }
+
+    function decrypt(encryptedMessage) {
+        return encryptedMessage;
+    }
+
     function modularPow(base, exponent, modulus) {
-        if (modulus === 1) return 0;
-        var result = 1;
-        base = base % modulus;
-        while (exponent > 0) {
-            if (exponent % 2 === 1) {
-                result = (result * base) % modulus;
-            }
-            exponent = exponent >> 1; // Divide exponent by 2.
-            base = (base * base) % modulus;
-        }
-        return result;
+        var outcome = base.modPow(exponent,modulus);
+        console.log(outcome,"The following is a proper good output");
+        return outcome;
     }
 
     function check_existing_key(user_name) {
@@ -37,7 +53,7 @@
 
         if (message_obj["sender"] == connected_user && message_obj["message"]["type"] == "ciphertext") {
             console.log("Recieved message from connected user. Appending message");
-            append_message_content(message_obj["message"]['content'],message_obj["sender"]);
+            append_message_content(decrypt(message_obj["message"]['content']),message_obj["sender"]);
         } else if (message_obj["message"]["type"] == "key_exchange") {
             if (message_obj['message']['sequence_num'] == 0) {
                 console.log("Responding to key exchange");
@@ -55,7 +71,6 @@
         }
         if (check_existing_key(reciever_user_name)) {
             connected_user = reciever_user_name;
-            active_key = known_keys[reciever_user_name];
         }
     }
 </script>
@@ -70,11 +85,13 @@
     }
 
     function craft_message_communication(message) {
-        return JSON.stringify({
+        var new_message = JSON.stringify({
             type: "ciphertext",
-            content: message,
+            content: encrypt(message),
             sequence_num: null
         });
+        console.log(new_message);
+        return new_message;
     }
 
     function get_recieved_message(expected_sequence_num,sender) {
@@ -105,7 +122,7 @@
     }
 
     async function init_key_exchange(recipient) {
-        var public_value = modularPow(g,secret,p);
+        var public_value = await modularPow(g,secret,p);
         let recieved_message = null; 
         
         let sequence_num = 0; 
@@ -116,12 +133,13 @@
 
         sequence_num += 1; 
         relay(craft_key_exchange_communication(public_value,sequence_num),recipient);
-        
         sequence_num += 1; 
         recieved_message = await check_responce_timeout(sequence_num,recipient);
-
+                console.log("hit");
         if (!(recieved_message == null)){
-            known_keys[recipient] = modularPow(recieved_message['content'],secret,p);
+                    console.log("hit 2");
+            known_keys[recipient] = modularPow(bigInt(recieved_message['content']),secret,p);
+                    console.log("hit 3");
             console.log("shared key established:",known_keys[recipient]);
         }
     }
@@ -139,7 +157,7 @@
         sequence_num += 1; 
         relay(craft_key_exchange_communication(public_value,sequence_num),sender);
 
-        known_keys[sender] = modularPow(recieved_message['content'],secret,p);
+        known_keys[sender] = modularPow(bigInt(recieved_message['content']),secret,p);
         console.log("shared key established:",known_keys[sender]);
     }
 </script>

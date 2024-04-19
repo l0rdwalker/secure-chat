@@ -18,11 +18,19 @@ except ImportError:
 import db
 user_aggregator = user_manager()
 
-def validate_user(user_name, user_hash):
+def validate_user_content(user_name, user_hash):
     potential_user = db.get_user_by_username(user_name)
     if (potential_user == None):
+        raise Exception("No user of given name.")
+    if common.compare_hash(user_hash,potential_user.salt,potential_user.user_hash) == False:
+        raise Exception("Invalid password")
+    return True
+
+def validate_user(user_name,user_hash):
+    try: #So like, I need to show a warning message for the login attempts. But, I also use the validate user in other functions.
+        return validate_user_content(user_name,user_hash) #Why create two nearly identical functions, when you can bridge the two with terrible design decisions? 
+    except Exception as e:
         return False
-    return common.compare_hash(user_hash,potential_user.salt,potential_user.user_hash)
 
 def relay_friend_requests(user_name:str):
     request = {"requests":db.get_friend_requests(user_name)}
@@ -48,7 +56,7 @@ def inform_error(error_msg:str, user_name:str, registered=True):
         emit("error",error_msg,room=user_name)
         
 def security_check(user_name,connection_id):
-    if (db.is_valid_username(user_name) and user_aggregator.is_online(user_name)):
+    if (db.is_valid_username(user_name) and user_aggregator.is_online(user_name) and user_aggregator.get_relay_connection_reference(user_name) == connection_id):
         return True
     inform_error("Invalid credentials",connection_id,registered=False)
 
@@ -102,6 +110,7 @@ def send_friend_request(message):
             db.send_friend_request(message_json['sender'],message_json['recipient'])
             if (user_aggregator.is_online(message_json['recipient'])):
                 relay_friend_requests(message_json['recipient'])
+            relay_friend_requests(message_json['sender'])
             
 @socketio.on("send_friend_request_response") 
 def send_friend_request_response(message):

@@ -39,8 +39,11 @@ def login_user():
     user_hash = request.json.get("user_hash")
     username = request.json.get("username")
 
-    if (socket_routes.validate_user(username,user_hash)):
+    try:
+        socket_routes.validate_user_content(username,user_hash)
         return url_for('home')
+    except Exception as e:
+        return str(e)
 
 # handles a get request to the signup page
 @app.route("/signup")
@@ -58,7 +61,8 @@ def signup_user():
     if db.get_user_refactored(user_hash) == None:
         db.insert_user_refactored(user_hash,username)
         return url_for('home')   
-    return "Error: User already exists!"
+    else:
+        return "Error: User already exists!"
 
 # handler when a "404" error happens
 @app.errorhandler(404)
