@@ -1,18 +1,14 @@
 {% block content %} 
     <script src="/static/js/libs/socket.io.min.js"></script>
     <script>
-        console.log(document.cookie);
-
         const socket = io();
         socket.on("error", (msg, color="black") => {
             alert(msg);
-            console.log("there was an error");
             window.open("{{ url_for('index') }}", "_self");
         })
         
         function send(message,recipient,type) {
             var communication = JSON.stringify({sender: username, recipient:recipient, message:message});
-            console.log("Sending message",communication);
             socket.emit(type,communication);  
         } 
 

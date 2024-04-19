@@ -11,12 +11,6 @@
             let number = parseInt(hash.charAt(i), 16);
             seed += parseInt(hash.charAt(i), 16).toString();
         }
-        return seed;
-    }
-
-    function custom_rand_key(hash) {
-        let seed = custom_parseInt(hash);
-
         return bigInt(seed);
     }
 
@@ -25,20 +19,50 @@
     let connected_user = null;
 
     let g = bigInt(1231);
-    let p = get_prime();//9007199254740881; //Largest prime we can make work. 
-    let secret = custom_rand_key(sessionStorage.getItem("key"));
+    let p = get_prime();
+    let secret = custom_parseInt(sessionStorage.getItem("key"));
 
-    function encrypt(message) {
-        return message;
+    async function encrypt(message,key) {
+        const messageBuffer = new TextEncoder().encode(message);
+        let iv = crypto.getRandomValues(new Uint8Array(12));
+
+        const algorithm = { name: 'AES-GCM', iv: iv };
+        
+        let ivString = Array.from(iv).join(',');
+
+        const keyObject = await crypto.subtle.importKey('raw', key, algorithm, false, ['encrypt']);
+        let encryptedMessage = await crypto.subtle.encrypt(algorithm, keyObject, messageBuffer);
+        
+        let encryptedMessageString = Array.from(new Uint8Array(encryptedMessage)).join(',');
+
+        let IVencryptedMessage = ivString + ";" + encryptedMessageString;
+        return IVencryptedMessage;
     }
 
-    function decrypt(encryptedMessage) {
-        return encryptedMessage;
+    async function decrypt(encryptedMessage,key) {
+            encryptedMessage = encryptedMessage + "";
+            let indexOfIV = encryptedMessage.indexOf(";");
+
+            const IV = encryptedMessage.substring(0, indexOfIV).trim();
+            let encryptedMessageOnly = encryptedMessage.substring(indexOfIV + 1).trim();
+
+            const ivArray = IV.split(',').map(Number);
+            const extractedIV = new Uint8Array(ivArray);
+
+            const algorithm = { name: 'AES-GCM', iv: extractedIV };
+
+            const encryptedMessageBuffer = Uint8Array.from(encryptedMessageOnly.split(',').map(Number)).buffer;
+
+            const keyObject = await crypto.subtle.importKey("raw", key, { name: "AES-GCM" }, true, ["encrypt", "decrypt"])
+            const decryptedData = await crypto.subtle.decrypt(algorithm, keyObject, encryptedMessageBuffer);
+
+            const decryptionResult = new TextDecoder().decode(decryptedData);
+            return decryptionResult;
+
     }
 
     function modularPow(base, exponent, modulus) {
         var outcome = base.modPow(exponent,modulus);
-        console.log(outcome,"The following is a proper good output");
         return outcome;
     }
 
@@ -46,21 +70,53 @@
         return (user_name in known_keys);
     }
 
-    function receiver(message) { //Accepts all the key-exchange relevent messages. 
+ function craft_key_exchange_communication(content, sequence_num) {
+        return JSON.stringify({
+            type: "key_exchange",
+            content: content,
+            sequence_num: sequence_num
+        });
+    }
+
+    async function craft_message_communication(message) {
+        let hash_mac = calc_hmac(message, connected_user)+"heheheh";
+        let data = await encrypt(message,known_keys[connected_user]);
+
+        var new_message = JSON.stringify({
+            type: "ciphertext",
+            content: data,
+            sequence_num: null,
+             hmac: hash_mac
+        });
+        return new_message;
+    }
+
+    function calc_hmac(message) {
+        shared_key = known_keys[connected_user];
+        let result = message.concat(shared_key);
+        hmac = sha256(result);
+        return hmac;
+    }
+
+    async function receiver(message) { //Accepts all the key-exchange relevent messages. 
         let message_obj = JSON.parse(message);
         message_obj['message'] = JSON.parse(message_obj['message']);
-        console.log("triggered reciever",message_obj);
 
         if (message_obj["sender"] == connected_user && message_obj["message"]["type"] == "ciphertext") {
-            console.log("Recieved message from connected user. Appending message");
-            append_message_content(decrypt(message_obj["message"]['content']),message_obj["sender"]);
+
+            let decrypted_message = await decrypt(message_obj["message"]['content'],known_keys[connected_user]);
+            let hmac_two = calc_hmac(decrypted_message); 
+            if (hmac_two == message_obj['message']['hmac'] == hmac_two) {
+                append_message_content(decrypted_message,message_obj["sender"]);
+            } else {
+                console.log("ERROR NON MATCHING HMAC");
+            }
+
         } else if (message_obj["message"]["type"] == "key_exchange") {
             if (message_obj['message']['sequence_num'] == 0) {
-                console.log("Responding to key exchange");
                 respond_key_exchange(message_obj["sender"]); //If this is the first messages recieved to init a key exchange, it goes straight to the respond to exchange funcion
             } else {
                 received_messages.push(message_obj);
-                console.log("Storing message for pass over.");
             }           
         }
     }
@@ -76,24 +132,6 @@
 </script>
 
 <script>
-    function craft_key_exchange_communication(content, sequence_num) {
-        return JSON.stringify({
-            type: "key_exchange",
-            content: content,
-            sequence_num: sequence_num
-        });
-    }
-
-    function craft_message_communication(message) {
-        var new_message = JSON.stringify({
-            type: "ciphertext",
-            content: encrypt(message),
-            sequence_num: null
-        });
-        console.log(new_message);
-        return new_message;
-    }
-
     function get_recieved_message(expected_sequence_num,sender) {
         let found_message;
         for (var x = 0; x < received_messages.length; x++) {
@@ -111,7 +149,6 @@
     async function check_responce_timeout(sequence_num,recipient) {
         recieved_message = null; 
         for (let x = 0; x < 5; x++) {
-            console.log("Checking");
             recieved_message = get_recieved_message(sequence_num,recipient);
             if (!(recieved_message == null)) {
                 break;
@@ -135,11 +172,8 @@
         relay(craft_key_exchange_communication(public_value,sequence_num),recipient);
         sequence_num += 1; 
         recieved_message = await check_responce_timeout(sequence_num,recipient);
-                console.log("hit");
         if (!(recieved_message == null)){
-                    console.log("hit 2");
-            known_keys[recipient] = modularPow(bigInt(recieved_message['content']),secret,p);
-                    console.log("hit 3");
+            known_keys[recipient] = await pure_sha256(modularPow(bigInt(recieved_message['content']),secret,p));
             console.log("shared key established:",known_keys[recipient]);
         }
     }
@@ -157,7 +191,7 @@
         sequence_num += 1; 
         relay(craft_key_exchange_communication(public_value,sequence_num),sender);
 
-        known_keys[sender] = modularPow(bigInt(recieved_message['content']),secret,p);
+        known_keys[sender] = await pure_sha256(modularPow(bigInt(recieved_message['content']),secret,p));
         console.log("shared key established:",known_keys[sender]);
     }
 </script>

@@ -67,7 +67,7 @@ def connect():
     
     if (validate_user(user_name,user_hash)):
         if (user_aggregator.is_online(user_name)):
-            user_aggregator.unrecognise_user(user_name)
+            inform_error("No dual account use",request.sid,registered=False)
         else:
             connection_reference = request.sid
             user_aggregator.recognise_user(user_name, connection_reference)

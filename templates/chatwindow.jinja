@@ -79,9 +79,11 @@
         if (connected_user != null) {
             let message_content = user_input.value;
             user_input.value = "";
-            
+            //console.log("test");
             append_message_content(message_content,username);
-            await relay(craft_message_communication(message_content),connected_user);            
+            let test = await craft_message_communication(message_content);
+            relay(test,connected_user); 
+            //console.log("test2");           
         } else {
             alert("There is no user connected");
         }
@@ -112,13 +114,15 @@
         receiver(msg);
     })
 
-    socket.on("message_history", (msg, color="black") => {
+    socket.on("message_history", async (msg, color="black") => {
         var message_history_obj = JSON.parse(msg);
+        console.log(known_keys[connected_user],"this do be the key");
         for (var i = 0; i < message_history_obj['messages'].length; i++) {
             var specific_message_obj = JSON.parse(message_history_obj['messages'][i]);
-            append_message_content(specific_message_obj['message'],specific_message_obj['user']);
+            let specific_message = await decrypt(specific_message_obj['message'],known_keys[connected_user]);
+            append_message_content(specific_message,specific_message_obj['user']);
         }
-        console.log("chat history",message_history_obj);
+        //console.log("chat history",message_history_obj);
     })
 </script>
 
@@ -135,7 +139,7 @@
 
         <div id="input_controls">
             <textarea id="paragraph_input" name="paragraph_input"></textarea>
-            <input id="submit_message" type="submit" onclick="handle_send()" value="send_request">
+            <input id="submit_message" type="submit" onclick="handle_send()" value="send messaage">
         </div>
 
     </div>
