@@ -32,18 +32,22 @@ Sign up page, pretty much the same as login.
             sessionStorage.setItem("key", shhh_key);
             sessionStorage.setItem("user_hash", user_hash);
             sessionStorage.setItem("username", $("#username").val());
-            
-            let res = await axios.post(sign_up_url, {
-                username: $("#username").val(),
-                password: $("#password").val(),
-                user_hash: user_hash
-            });
-            
-            if (!isValidURL(res.data)) {
-                alert(res.data);
-                return;
+
+            try {
+                let res = await axios.post(sign_up_url, {
+                    username: $("#username").val(),
+                    password: $("#password").val(),
+                    user_hash: user_hash
+                });
+                if (!isValidURL(res.data)) {
+                    alert(res.data);
+                    return;
+                } else {
+                    window.open(res.data, "_self");
+                }
+            } catch (error) {
+                alert("User credientals are not valid")
             }
-            window.open(res.data, "_self");
         }
     </script>
 {% endblock %}

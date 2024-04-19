@@ -4,7 +4,7 @@ this is where you'll find all of the get/post request handlers
 the socket event handlers are inside of socket_routes.py
 '''
 
-from flask import Flask, render_template, request, abort, url_for
+from flask import Flask, render_template, request, abort, url_for, Response
 from flask_socketio import SocketIO
 import db
 import secrets
@@ -55,14 +55,18 @@ def signup():
 def signup_user():
     if not request.is_json:
         abort(404)
-    
+
     username = request.json.get("username")    
     user_hash = request.json.get("user_hash")
-    if db.get_user_refactored(user_hash) == None:
+    
+    if username.strip() == "":
+        return "No empty space username"
+     
+    if db.get_user_refactored(user_hash) == None and db.get_user_by_username(username) == None:
         db.insert_user_refactored(user_hash,username)
         return url_for('home')   
     else:
-        return "Error: User already exists!"
+        return "Please select a unique username"
 
 # handler when a "404" error happens
 @app.errorhandler(404)

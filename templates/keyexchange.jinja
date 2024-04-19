@@ -79,22 +79,22 @@
     }
 
     async function craft_message_communication(message) {
-        let hash_mac = calc_hmac(message, connected_user)+"heheheh";
+        let hash_mac = await calc_hmac(message, connected_user);
         let data = await encrypt(message,known_keys[connected_user]);
 
         var new_message = JSON.stringify({
             type: "ciphertext",
             content: data,
             sequence_num: null,
-             hmac: hash_mac
+            hmac: hash_mac
         });
         return new_message;
     }
 
-    function calc_hmac(message) {
+    async function calc_hmac(message) {
         shared_key = known_keys[connected_user];
         let result = message.concat(shared_key);
-        hmac = sha256(result);
+        hmac = await sha256(result);
         return hmac;
     }
 
@@ -105,11 +105,12 @@
         if (message_obj["sender"] == connected_user && message_obj["message"]["type"] == "ciphertext") {
 
             let decrypted_message = await decrypt(message_obj["message"]['content'],known_keys[connected_user]);
-            let hmac_two = calc_hmac(decrypted_message); 
-            if (hmac_two == message_obj['message']['hmac'] == hmac_two) {
+            let hmac_two = await calc_hmac(decrypted_message); 
+            if (hmac_two == message_obj['message']['hmac']) {
                 append_message_content(decrypted_message,message_obj["sender"]);
             } else {
                 console.log("ERROR NON MATCHING HMAC");
+                console.log(hmac_two,JSON.stringify(message_obj));
             }
 
         } else if (message_obj["message"]["type"] == "key_exchange") {
