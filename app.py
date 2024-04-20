@@ -10,6 +10,7 @@ import db
 import secrets
 import common
 import os
+import generate_key
 
 # import logging
 
@@ -93,5 +94,9 @@ certificatePrivateKey = os.path.join(script_dir,"certs/luna/flaskapp.key")
 if __name__ == '__main__':
     app.jinja_env.auto_reload = True
     app.config['TEMPLATES_AUTO_RELOAD'] = True
+
+    # to call python function jinja
+    #app.jinja_env.globals.update(generate_key=generate_key)
+
     socketio.run(app,ssl_context=(certificate, certificatePrivateKey))
     
