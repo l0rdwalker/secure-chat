@@ -81,8 +81,8 @@
             user_input.value = "";
             //console.log("test");
             append_message_content(message_content,username);
-            let test = await craft_message_communication(message_content);
-            relay(test,connected_user); 
+            let message = await craft_message_communication(message_content);
+            relay(message,connected_user); 
             //console.log("test2");           
         } else {
             alert("There is no user connected");
