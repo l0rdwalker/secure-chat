@@ -23,30 +23,60 @@ Sign up page, pretty much the same as login.
             return false;
         }
 
+        function validate_credentials(username,password) {
+            const hasAlpha = str => /[a-zA-Z]/.test(str);
+            const hasNumeric = str => /\d/.test(str);
+
+            let error = "";
+            password = password.trim();
+            username = username.trim();
+
+            if (username.length == 0) {
+                error += "You cannot have an empty username\n";
+            }
+            if (password.length < 8) {
+                error += "You must enter a password with length greater or equal to 8 characters.\n";
+            }
+            if (!hasAlpha(password)) {
+                error += "Your password must contain at least one alphabetic character.\n";
+            }
+            if (!hasNumeric(password)) {
+                error += "Your password must contain at least one numeric character.\n";
+            }
+
+            return error;
+        }
+
         async function signup() {
             let sign_up_url = "{{ url_for('signup_user') }}";
 
-            let user_hash = await sha256($("#username").val()+$("#password").val());
-            let shhh_key  = await sha256($("#password").val());
+            let password_error = validate_credentials($("#username").val(),$("#password").val());
 
-            sessionStorage.setItem("key", shhh_key);
-            sessionStorage.setItem("user_hash", user_hash);
-            sessionStorage.setItem("username", $("#username").val());
+            if (password_error.length == 0) {
+                let user_hash = await sha256($("#username").val()+$("#password").val());
+                let shhh_key  = await sha256($("#password").val());
 
-            try {
-                let res = await axios.post(sign_up_url, {
-                    username: $("#username").val(),
-                    password: $("#password").val(),
-                    user_hash: user_hash
-                });
-                if (!isValidURL(res.data)) {
-                    alert(res.data);
-                    return;
-                } else {
-                    window.open(res.data, "_self");
+                sessionStorage.setItem("key", shhh_key);
+                sessionStorage.setItem("user_hash", user_hash);
+                sessionStorage.setItem("username", $("#username").val());
+
+                try {
+                    let res = await axios.post(sign_up_url, {
+                        username: $("#username").val(),
+                        password: $("#password").val(),
+                        user_hash: user_hash
+                    });
+                    if (!isValidURL(res.data)) {
+                        alert(res.data);
+                        return;
+                    } else {
+                        window.open(res.data, "_self");
+                    }
+                } catch (error) {
+                    alert("User credientals are not valid")
                 }
-            } catch (error) {
-                alert("User credientals are not valid")
+            } else {
+                alert(password_error);
             }
         }
     </script>
