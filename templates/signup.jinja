@@ -63,7 +63,6 @@ Sign up page, pretty much the same as login.
                 try {
                     let res = await axios.post(sign_up_url, {
                         username: $("#username").val(),
-                        password: $("#password").val(),
                         user_hash: user_hash
                     });
                     if (!isValidURL(res.data)) {
