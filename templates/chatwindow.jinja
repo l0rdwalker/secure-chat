@@ -79,11 +79,9 @@
         if (connected_user != null) {
             let message_content = user_input.value;
             user_input.value = "";
-            //console.log("test");
             append_message_content(message_content,username);
             let message = await craft_message_communication(message_content);
-            relay(message,connected_user); 
-            //console.log("test2");           
+            relay(message,connected_user);       
         } else {
             alert("There is no user connected");
         }
@@ -116,13 +114,11 @@
 
     socket.on("message_history", async (msg, color="black") => {
         var message_history_obj = JSON.parse(msg);
-        console.log(known_keys[connected_user],"this do be the key");
         for (var i = 0; i < message_history_obj['messages'].length; i++) {
             var specific_message_obj = JSON.parse(message_history_obj['messages'][i]);
             let specific_message = await decrypt(specific_message_obj['message'],known_keys[connected_user]);
             append_message_content(specific_message,specific_message_obj['user']);
         }
-        //console.log("chat history",message_history_obj);
     })
 </script>
 

@@ -28,7 +28,6 @@ async function pure_sha256(message) {
     const hashBuffer = await crypto.subtle.digest('SHA-256', data); // Hash data using SHA-256
 
     const hashArray = new Uint8Array(hashBuffer); 
-    console.log(hashArray);
     return hashArray; // Returns the Uint8Array, which is a raw 256-bit stream
 }
 
