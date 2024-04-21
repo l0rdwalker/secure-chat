@@ -18,21 +18,21 @@ except ImportError:
 import db
 user_aggregator = user_manager()
 
-def validate_user_content(user_name, user_hash):
+def validate_user_content(user_name, user_hash): #Foundational security check, used in the the login process. 
     potential_user = db.get_user_by_username(user_name)
     if (potential_user == None):
-        raise Exception("No user of given name.")
+        raise Exception("No user of given name.") #These errors are relayed and displayed onscreen
     if common.compare_hash(user_hash,potential_user.salt,potential_user.user_hash) == False:
         raise Exception("Invalid password")
     return True
 
-def validate_user(user_name,user_hash):
-    try: #So like, I need to show a warning message for the login attempts. But, I also use the validate user in other functions.
-        return validate_user_content(user_name,user_hash) #Why create two nearly identical functions, when you can bridge the two with terrible design decisions? 
+def validate_user(user_name,user_hash): #Wpr for validate_user_content, allows other functions to use the same logic without faultering due to the flipped error
+    try: 
+        return validate_user_content(user_name,user_hash) 
     except Exception as e:
         return False
 
-def relay_friend_requests(user_name:str):
+def relay_friend_requests(user_name:str): 
     request = {"requests":db.get_friend_requests(user_name)}
     emit("update_friend_requests",json.dumps(request),room=user_aggregator.get_relay_connection_reference(user_name))
 
@@ -40,8 +40,8 @@ def relay_online_friends_list(user_name:str,notify_friends=True,on_disconnect=Fa
     all_friends = db.get_friends_by_username(user_name)
     online_friends = []
     for friend in all_friends:
-        if (user_aggregator.is_online(friend)):
-            online_friends.append([friend,True])
+        if (user_aggregator.is_online(friend)): #Main logic to determin if a user should be labelled online or offline
+            online_friends.append([friend,True]) 
             if (notify_friends):
                 relay_online_friends_list(friend,notify_friends=False)
         else:
@@ -49,19 +49,20 @@ def relay_online_friends_list(user_name:str,notify_friends=True,on_disconnect=Fa
     if (on_disconnect == False):
         emit("update_friends_list",json.dumps({"friends_list":online_friends}),room=user_aggregator.get_relay_connection_reference(user_name))
     
-def inform_error(error_msg:str, user_name:str, registered=True):
-    if (registered):
-        emit("error",error_msg,room=user_aggregator.get_relay_connection_reference(user_name))
+def inform_error(error_msg:str, user_name:str, registered=True): ##Allows us to inform the frontend of any error which might occur. 
+    if (registered): 
+        emit("error",error_msg,room=user_aggregator.get_relay_connection_reference(user_name)) #if user_name doesn't store connection reference, we must return the connection reference
     else:
-        emit("error",error_msg,room=user_name)
+        emit("error",error_msg,room=user_name) #Otherwise, the user_name is just the connection reference itself
         
-def security_check(user_name,connection_id):
+def security_check(user_name,connection_id): #Generic security check that is referred to by many other functions.
+    #Checks if user is a normal username, if the user is online and the registered connection code matches that onfile
     if (db.is_valid_username(user_name) and user_aggregator.is_online(user_name) and user_aggregator.get_relay_connection_reference(user_name) == connection_id):
         return True
     inform_error("Invalid credentials",connection_id,registered=False)
 
 @socketio.on('connect')
-def connect():
+def connect(): #Main method which establishes connection to oncoming users
     user_name = request.cookies.get("username")
     user_hash = request.cookies.get("user_hash")
     
@@ -78,27 +79,28 @@ def connect():
         inform_error("Invalid connection credentials",request.sid,registered=False)
     
 @socketio.on('disconnect')
-def manage_disconnect():
+def manage_disconnect(): #Manages user disconnections
     user_name = request.cookies.get("username")
     if (user_aggregator.is_online(user_name)):
         user_aggregator.unrecognise_user(user_name)
         relay_online_friends_list(user_name,on_disconnect=True)
 
 @socketio.on("relay")
-def relay(message):
+def relay(message): #The main function which allows user-to-user communications
     message_json = json.loads(message)
     message_content_json = json.loads(message_json['message'])
     
-    if (security_check(message_json['sender'],request.sid)):
+    if (security_check(message_json['sender'],request.sid) and db.is_valid_username(message_json['sender'])):
         recipient_connection_reference = user_aggregator.get_relay_connection_reference(message_json["recipient"])
         if (message_content_json['type'] == "ciphertext"):
             db.record_message(message_json['sender'],message_json['recipient'],message_content_json['content'])
-        emit("incoming",message,room=recipient_connection_reference)
+        if (user_aggregator.is_online(message_json['sender'])):
+            emit("incoming",message,room=recipient_connection_reference)
     
 @socketio.on("get_message_history")
-def get_message_history(message):
+def get_message_history(message): #Gets the convo history for two users, accessed when users open a chat. 
     message_json = json.loads(message)
-    if (security_check(message_json['sender'],request.sid)):
+    if (security_check(message_json['sender'],request.sid) and db.is_valid_username(message_json['sender'])):
         history = db.get_message_history_db(message_json['sender'],message_json['recipient'])
         emit("message_history",history,room=user_aggregator.get_relay_connection_reference(message_json['sender']))
 
@@ -121,8 +123,9 @@ def send_friend_request_response(message):
                 db.append_friends_relationship(message_json['sender'],message_json['recipient'])
             db.delete_friend_request(message_json['sender'],message_json['recipient'])
             
-            relay_online_friends_list(message_json['sender'])
-            relay_online_friends_list(message_json['recipient'])
-            
-            relay_friend_requests(message_json['sender'])
-            relay_friend_requests(message_json['recipient'])
+            if (user_aggregator.is_online()):
+                relay_online_friends_list(message_json['sender'])
+                relay_friend_requests(message_json['sender'])
+            if (user_aggregator.is_online(message_json['recipient'])):
+                relay_online_friends_list(message_json['recipient'])
+                relay_friend_requests(message_json['recipient'])

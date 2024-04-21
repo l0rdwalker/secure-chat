@@ -103,7 +103,7 @@
         message_obj['message'] = JSON.parse(message_obj['message']);
 
         if (message_obj["sender"] == connected_user && message_obj["message"]["type"] == "ciphertext") {
-
+            //If the recieved communication is infact a message which should beb displayed to the user. 
             let decrypted_message = await decrypt(message_obj["message"]['content'],known_keys[connected_user]);
             let hmac_two = await calc_hmac(decrypted_message); 
             if (hmac_two == message_obj['message']['hmac']) {

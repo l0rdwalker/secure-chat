@@ -13,24 +13,19 @@ import os
 
 app = Flask(__name__)
 
-# secret key used to sign the session cookie
 app.config['SECRET_KEY'] = secrets.token_hex()
 socketio = SocketIO(app)
 
-# don't remove this!!
 import socket_routes
 
-# index page
 @app.route("/")
 def index():
     return render_template("index.jinja")
 
-# login page
 @app.route("/login")
 def login():    
     return render_template("login.jinja")
 
-# handles a post request when the user clicks the log in button
 @app.route("/login/user", methods=["POST"])
 def login_user():
     if not request.is_json:
@@ -45,12 +40,10 @@ def login_user():
     except Exception as e:
         return str(e)
 
-# handles a get request to the signup page
 @app.route("/signup")
 def signup():
     return render_template("signup.jinja")
 
-# handles a post request when the user clicks the signup button
 @app.route("/signup/user", methods=["POST"])
 def signup_user():
     if not request.is_json:
@@ -68,12 +61,10 @@ def signup_user():
     else:
         return "Please select a unique username"
 
-# handler when a "404" error happens
 @app.errorhandler(404)
 def page_not_found(_):
     return render_template('404.jinja'), 404
 
-# home page, where the messaging app is
 @app.route("/home")
 def home():
     return render_template("home.jinja")
