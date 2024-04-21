@@ -9,8 +9,6 @@
     <button onclick="login()">Login</button>
 
     <script>
-
-        // basically checks if the server returns an Error message instead of a URL
         function isValidURL(string) {
             if (string.length == 0) {
                 return false;
@@ -23,7 +21,6 @@
 
         async function login() {
             sessionStorage.setItem("key", "");
-            
             let loginURL = "{{ url_for('login_user') }}";
 
             let user_hash = await sha256($("#username").val()+$("#password").val());
@@ -38,13 +35,13 @@
                 user_hash: user_hash
             });
 
-            if (!isValidURL(res.data)) {
-                alert(res.data);
-                return;
+            console.log(res.data);
+            if (res.data['error'] == null) {
+                sessionStorage.setItem('token',res.data['access_token']);
+                window.open(res.data['redirect'], "_self");
+            } else {
+                alert(res.data['error']);
             }
-
-            window.open(res.data, "_self")
-            
         }
     </script>
 {% endblock %}

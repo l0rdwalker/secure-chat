@@ -160,6 +160,7 @@
     }
 
     async function init_key_exchange(recipient) {
+        console.log(g,p);
         var public_value = await modularPow(g,secret,p);
         let recieved_message = null; 
         

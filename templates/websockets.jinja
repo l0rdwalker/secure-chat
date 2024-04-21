@@ -1,6 +1,9 @@
 {% block content %} 
     <script src="/static/js/libs/socket.io.min.js"></script>
     <script>
+        let token = sessionStorage.getItem('token')+"33";
+        console.log(token);
+
         const socket = io();
         socket.on("error", (msg, color="black") => {
             alert(msg);
@@ -8,7 +11,7 @@
         })
         
         function send(message,recipient,type) {
-            var communication = JSON.stringify({sender: username, recipient:recipient, message:message});
+            var communication = JSON.stringify({token:token, sender: username, recipient:recipient, message:message});
             socket.emit(type,communication);  
         } 
 

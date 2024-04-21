@@ -5,17 +5,21 @@ the socket event handlers are inside of socket_routes.py
 '''
 
 from flask import Flask, render_template, request, abort, url_for, Response
+from flask_jwt_extended import JWTManager
 from flask_socketio import SocketIO
 import db
 import secrets
-import common
+from flask import jsonify, request
+from flask_jwt_extended import create_access_token
+from datetime import timedelta
 import os
 
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = secrets.token_hex()
 socketio = SocketIO(app)
-
+jwt = JWTManager(app)
+            
 import socket_routes
 
 @app.route("/")
@@ -33,12 +37,13 @@ def login_user():
 
     user_hash = request.json.get("user_hash")
     username = request.json.get("username")
+    access_token = create_access_token(identity=username,expires_delta=timedelta(days=1))
 
     try:
         socket_routes.validate_user_content(username,user_hash)
-        return url_for('home')
+        return jsonify(access_token=access_token,error=None,redirect=url_for('home'))
     except Exception as e:
-        return str(e)
+        return jsonify(access_token=None,error=str(e),redirect=None)
 
 @app.route("/signup")
 def signup():
