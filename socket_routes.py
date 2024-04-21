@@ -3,31 +3,23 @@ socket_routes
 file containing all the routes related to socket.io
 '''
 
-from flask_socketio import emit, leave_room, disconnect
-from flask_jwt_extended import decode_token, get_jwt_identity
-from flask_socketio import disconnect
+from flask_socketio import emit
 from flask import request
-import models
 from userManager.manager import user_manager
+from flask_jwt_extended import decode_token
+from flask import current_app
+import jwt
 import json
 import common
 
 try:
     from __main__ import socketio
+    from __main__ import app
 except ImportError:
     from app import socketio
 import db
 
 user_aggregator = user_manager()
-
-def validate_jwt(token):
-    try:
-        decode_token(token)
-        user_identity = get_jwt_identity()
-        return user_identity
-    except Exception as e:
-        print(f"Invalid token: {str(e)}")  # Log the error
-        return None
 
 def validate_user_content(user_name, user_hash): #Foundational security check, used in the the login process. 
     potential_user = db.get_user_by_username(user_name)
@@ -65,16 +57,16 @@ def inform_error(error_msg:str, user_name:str, registered=True): ##Allows us to 
         emit("error",error_msg,room=user_aggregator.get_relay_connection_reference(user_name)) #if user_name doesn't store connection reference, we must return the connection reference
     else:
         emit("error",error_msg,room=user_name) #Otherwise, the user_name is just the connection reference itself
-        
-def validate_jwt(token):
+
+def jwt_token_check(token):
     try:
-        decode_token(token)
+        decode_token(token,allow_expired=False)
         return True
     except Exception as e:
         return False
-        
+
 def security_check(message_obj,connection_id): #Generic security check that is referred to by many other functions.
-    if (validate_jwt(message_obj['token']) and db.is_valid_username(message_obj['sender']) and user_aggregator.is_online(message_obj['sender']) and user_aggregator.get_relay_connection_reference(message_obj['sender']) == connection_id):
+    if (jwt_token_check(message_obj['token']) and db.is_valid_username(message_obj['sender']) and user_aggregator.is_online(message_obj['sender']) and user_aggregator.get_relay_connection_reference(message_obj['sender']) == connection_id):
         return True
     inform_error("Invalid credentials",connection_id,registered=False)
 

@@ -17,9 +17,10 @@ import os
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = secrets.token_hex()
+app.config['JWT_SECRET_KEY'] = "Fixed key"
 socketio = SocketIO(app)
 jwt = JWTManager(app)
-            
+
 import socket_routes
 
 @app.route("/")
