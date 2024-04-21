@@ -2,7 +2,6 @@
     <script src="/static/js/libs/socket.io.min.js"></script>
     <script>
         let token = sessionStorage.getItem('token');
-        console.log(token);
 
         const socket = io();
         socket.on("error", (msg, color="black") => {
