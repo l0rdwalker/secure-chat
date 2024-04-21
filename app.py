@@ -59,13 +59,14 @@ def signup_user():
     user_hash = request.json.get("user_hash")
     
     if username.strip() == "":
-        return "No empty space username"
+        return jsonify(access_token=None,error="No empty space username",redirect=None)
      
     if db.get_user_refactored(user_hash) == None and db.get_user_by_username(username) == None:
         db.insert_user_refactored(user_hash,username)
-        return url_for('home')   
+        access_token = create_access_token(identity=username,expires_delta=timedelta(days=1))
+        return jsonify(access_token=access_token,error=None,redirect=url_for('home')) 
     else:
-        return "Please select a unique username"
+        return jsonify(access_token=None,error="Please select a unique username",redirect=None)
 
 @app.errorhandler(404)
 def page_not_found(_):
