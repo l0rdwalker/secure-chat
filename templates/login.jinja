@@ -35,7 +35,6 @@
                 user_hash: user_hash
             });
 
-            console.log(res.data);
             if (res.data['error'] == null) {
                 sessionStorage.setItem('token',res.data['access_token']);
                 window.open(res.data['redirect'], "_self");
