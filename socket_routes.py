@@ -118,10 +118,11 @@ def send_friend_request(message):
     message_json = json.loads(message)
     if (security_check(message_json,request.sid)):
         if db.is_valid_username(message_json['sender']) and db.is_valid_username(message_json['recipient']):
-            db.send_friend_request(message_json['sender'],message_json['recipient'])
-            if (user_aggregator.is_online(message_json['recipient'])):
-                relay_friend_requests(message_json['recipient'])
-            relay_friend_requests(message_json['sender'])
+            if not message_json['sender']==message_json['recipient']: 
+                db.send_friend_request(message_json['sender'],message_json['recipient'])
+                if (user_aggregator.is_online(message_json['recipient'])):
+                    relay_friend_requests(message_json['recipient'])
+                relay_friend_requests(message_json['sender'])   
             
 @socketio.on("send_friend_request_response") 
 def send_friend_request_response(message):

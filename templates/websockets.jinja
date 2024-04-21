@@ -6,7 +6,7 @@
         const socket = io();
         socket.on("error", (msg, color="black") => {
             alert(msg);
-            //window.open("{{ url_for('index') }}", "_self");
+            window.open("{{ url_for('index') }}", "_self");
         })
         
         function send(message,recipient,type) {
