@@ -1,9 +1,3 @@
-'''
-app.py contains all of the server application
-this is where you'll find all of the get/post request handlers
-the socket event handlers are inside of socket_routes.py
-'''
-
 from flask import Flask, render_template, request, abort, url_for, Response
 from flask_jwt_extended import JWTManager
 from flask_socketio import SocketIO
@@ -13,11 +7,15 @@ from flask import jsonify, request
 from flask_jwt_extended import create_access_token
 from datetime import timedelta
 import os
+import common
 
 app = Flask(__name__)
 
-app.config['SECRET_KEY'] = secrets.token_hex()
-app.config['JWT_SECRET_KEY'] = "Fixed key"
+script_dir = os.path.dirname(os.path.abspath(__file__))
+certificate = os.path.join(script_dir,"certs/flaskapp.crt")
+certificatePrivateKey = os.path.join(script_dir,"certs/flaskapp.key")
+
+app.config['JWT_SECRET_KEY'] = common.hash_string(open(certificatePrivateKey, 'r').read())
 socketio = SocketIO(app)
 jwt = JWTManager(app)
 
@@ -60,8 +58,8 @@ def signup_user():
     
     if username.strip() == "":
         return jsonify(access_token=None,error="No empty space username",redirect=None)
-     
-    if db.get_user_refactored(user_hash) == None and db.get_user_by_username(username) == None:
+
+    if db.get_user_by_username(username) == None:
         db.insert_user_refactored(user_hash,username)
         access_token = create_access_token(identity=username,expires_delta=timedelta(days=1))
         return jsonify(access_token=access_token,error=None,redirect=url_for('home')) 
@@ -75,10 +73,6 @@ def page_not_found(_):
 @app.route("/home")
 def home():
     return render_template("home.jinja")
-
-script_dir = os.path.dirname(os.path.abspath(__file__))
-certificate = os.path.join(script_dir,"certs/flaskapp.crt")
-certificatePrivateKey = os.path.join(script_dir,"certs/flaskapp.key")
 
 if __name__ == '__main__':
     app.jinja_env.auto_reload = True
