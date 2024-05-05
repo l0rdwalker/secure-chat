@@ -20,13 +20,13 @@
     padding-right: 50px;
 
     border-radius: 10px;
-    background-color: #EDCDC2;
+    background-color: #a6c0cd;
 }
 .main-btn:hover {
-    background-color: #e3c1b6;
+    background-color: #a5beca;
 }
 .main-btn:active  {
-    background-color: #deb8ab;
+    background-color: #99b4c2;
     padding-top: 9px;
     padding-bottom: 9px;
     margin-top:1px;

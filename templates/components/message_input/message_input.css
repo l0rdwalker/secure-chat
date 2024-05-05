@@ -14,7 +14,7 @@
 .send_message_btn {
     flex:1;
     max-width: 50px;
-    background-color: #EDCDC2;
+    background-color: #a6c0cd;
     display: flex;
     justify-items: center;
     align-items: center;
@@ -40,7 +40,7 @@
 }
 
 .send_message_btn:active {
-    background-color: #eac9be;
+    background-color: #99b4c2;
 }
 
 .message_input {

@@ -42,11 +42,16 @@
         }
     </style>
 
+    <script>
+        const socket = io();
+    </script>
+
     <body>
         
         {% include './components/header/header.jinja' %}
 
         <div class="main-divisor-wpr">
+            {% include './components/friends-list/friends-list.jinja' %}
             {% include './components/sidebar/sidebar.jinja' %}
 
             <div class="main-page">

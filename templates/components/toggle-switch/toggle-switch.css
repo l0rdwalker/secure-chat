@@ -9,7 +9,7 @@
     height: 100%;
     width: 100%;
     background-color: #ffffff;
-    border: 3px solid #debbaf;
+    border: 3px solid #829eac;
     border-radius: 10px;
     display: flex;
 }
@@ -27,7 +27,7 @@
 .btn {
     width: 50%;
     height: 105%;
-    background-color: #d7a898;
+    background-color: #a6c0cd;
     opacity: 50%;
     border-radius: 10px 0px 0px 10px;
     transform: translate(0px,-23px);

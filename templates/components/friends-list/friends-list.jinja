@@ -1,0 +1,15 @@
+
+
+{% block content %} 
+
+    <style>
+        {% include './components/friends-list/friends-list.css' %}
+    </style> 
+ 
+    <div class="sidebar-divisor">
+        <div class="content-container">
+
+            {% include './components/friends_list_tile/friends_list_tile.jinja' %}
+        </div>
+    </div>
+{% endblock %}

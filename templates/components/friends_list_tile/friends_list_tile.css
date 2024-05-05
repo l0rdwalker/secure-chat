@@ -1,0 +1,32 @@
+.friend_list_row {
+    width: 100%;
+    height: 50px;
+    margin-bottom: 2px;
+    border-bottom: 1px solid #DDDDDD;
+    display: flex;
+}
+
+.status {
+    height: 100%;
+    flex:1;
+    
+}
+
+.friend_user_name {
+    height: 100%;
+    flex:9;
+    display: flex;
+    justify-content:flex-start;
+    align-items:center;
+}
+
+.username_wpr {
+    width: fit-content;
+    height: 20px;
+}
+
+.friend_user_name p {
+    text-align: center;
+    font-size: 14px;
+    font-family: 'Trebuchet MS', sans-serif;
+}

@@ -19,10 +19,10 @@
 }
 
 .content-cell:hover {
-    background-color: #ffe2d9;
+    background-color: #dcedf7;
 }
 .content-cell:active {
-    background-color: #EDCDC2;
+    background-color: #c3d7e2;
 }
 
 .content-cell-flex-wpr {
