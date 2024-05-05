@@ -1,0 +1,16 @@
+
+
+{% block content %} 
+
+    <style>
+        {% include './components/sidebar/sidebar.css' %}
+    </style> 
+ 
+    <div class="sidebar-divisor">
+        <div class="content-container">
+            {% include './components/btn/btn.jinja' %}
+
+            {% include './components/content-cell/content-cell.jinja' %}
+        </div>
+    </div>
+{% endblock %}

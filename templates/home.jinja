@@ -1,67 +1,66 @@
 {% extends 'base.jinja' %}
 
 {% block content %} 
-   <style>
-    nav {
-        border-bottom: 1px solid black;
-        overflow: auto
-    }
+    <style>
+        p {
+            padding: 0px;
+            margin: 0px;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none; 
+            -ms-user-select: none; 
+            user-select: none;
+            font-family: 'Trebuchet MS', sans-serif;
+        }
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 95%;
+        }
+        .main-divisor-wpr {
+            display: flex;
+            background-color: #FFFFFF;
+            width: 100%;
+            height: 100%;
+        }
 
-    #message_box {
-        border: 1px solid black; 
-        height: 400px; 
-        width: 800px; 
-        overflow: auto;
-        padding: 2px;
-    }
+        .main-page {
+            flex:5;
+        }
 
-    .text  {
-        margin-top: 2px;
-        margin-bottom: 2px;
-    }
+        .content-container {
+            width: 100%;
+            height: 100%;
+        }
 
-    #component_division {
-        display: flex;
-    }
+        .main-content-wpr {
+            width: 95%;
+            height: 100%;
+            margin: auto;
+            margin-top: 20px;
+        }
+    </style>
 
-    #component {
-        flex: 1;
-    }
-</style>
+    <body>
+        
+        {% include './components/header/header.jinja' %}
 
-    <script>
-        let friend_requests=[];
-        let username = sessionStorage.getItem("username");
-        let user_hash = sessionStorage.getItem("user_hash");
+        <div class="main-divisor-wpr">
+            {% include './components/sidebar/sidebar.jinja' %}
 
-        document.cookie = "username="+username;
-        document.cookie = "user_hash="+user_hash;
-    </script>
+            <div class="main-page">
+                <div class="main-content-wpr">
+                    {% include './components/messager/messager.jinja' %}
 
-    {% include 'websockets.jinja' %}
-
-    <nav style="border-bottom: 1px solid black;">
-        <ol style="float: right">
-            <li style="display:inline-block">Username: <span id="user_name_display"></span></li>
-        </ol>
-    </nav>
-
-    <script>
-        document.getElementById("user_name_display").innerText = username; 
-    </script>
-
-    <h1>Messaging App </h1>
-
-    <main>
-        <div id="component_division">
-            <div id="component">
-                {% include 'chatwindow.jinja' %}
+                </div>
             </div>
-            <div id="component">
-                {% include 'friends.jinja' %}
-            </div>
+
+
         </div>
-    </main>
+
+
+    </body>
 
 
 {% endblock %}

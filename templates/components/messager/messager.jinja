@@ -1,0 +1,23 @@
+                    
+{% block content %} 
+    <style>
+        {% include './components/messager/messager.css' %}
+    </style> 
+
+    <div class="messenger_content">
+        <div class="messenger_header blow-out">
+            {% include './components/chat-title/chat-title.jinja' %}
+
+            {% include './components/messanger-members/messanger-members.jinja' %}
+        </div>
+        <div class="message_history blow-out">
+            {% include './components/message-history/message-history.jinja' %}
+            {% include './components/message-history/message-history.jinja' %}
+            {% include './components/message-history/message-history.jinja' %}
+            {% include './components/message-history/message-history.jinja' %}
+        </div>
+        <div class="user_controls blow-out">
+            {% include './components/message_input/message_input.jinja' %}
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% block content %}    
+    <style>
+        {% include './components/toggle-switch/toggle-switch.css' %}
+    </style> 
+
+    <script>
+        let state = false;
+        function switch_state(element) {
+            let highlight = document.getElementById("main_slide_btn");
+            let width = (document.getElementById("toggle-page-wpr").getBoundingClientRect()['width']/2)+5;
+            
+            if (state) {
+                highlight.style.transform = "translate(0px,-23px)";
+                highlight.style.borderRadius = "10px 0px 0px 10px";
+                state = false;
+            } else {
+                highlight.style.transform = "translate("+width+"px,-23px)";
+                highlight.style.borderRadius = "0px 10px 10px 0px";
+                state = true;
+            }
+        }
+    </script>
+            
+    <div id="toggle-page-wpr" class="toggle-wpr">
+        <div onclick="switch_state(this)" class="toggle">
+            <div class="switch_division">
+                <p>Chatroom</p>
+            </div>
+            <div class="switch_division">
+                <p>Articles</p>
+            </div>
+        </div>
+        <div onclick="switch_state(this)" id="main_slide_btn" class="btn"></div>
+    </div> 
+{% endblock %}

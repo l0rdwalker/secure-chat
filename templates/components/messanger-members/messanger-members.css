@@ -1,0 +1,6 @@
+
+.chat-members {
+    flex: 1;
+    max-height: 100%;
+    height: fit-content;
+}

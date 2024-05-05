@@ -1,0 +1,47 @@
+.header {
+    height: 38px;
+    width: 100%;
+    background-color: #EDCDC2;
+    font-family: 'Trebuchet MS', sans-serif;
+    font-weight:1800;
+    display: flex;
+}
+
+.header_logo h3 {
+    padding: 0px;
+    margin: 0px;
+    color: white;
+    text-align: center;
+}
+
+.logo-container {
+    flex: 1;
+    display: flex;
+}
+.white-space-seperator {
+    flex:5;
+}
+
+.header_logo {
+    margin: auto;
+    width: fit-content;
+    height: fit-content;
+    margin-top: 8px;
+    flex:1;
+}
+.usyd-logo {
+    height: 10px;
+    width: 20px;
+    flex:1;
+    margin-top: 6px;
+}
+
+.notification-container {
+    flex: 0.5;
+}
+.svg-wpr {
+    width: fit-content;
+    height: fit-content;
+    margin: auto;
+    margin-top: 7px;
+}

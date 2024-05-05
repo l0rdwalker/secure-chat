@@ -1,0 +1,31 @@
+.message-history {
+    width: 100%;
+    height: fit-content;
+    align-items: center; 
+    display: flex;
+    margin-bottom: 6px;
+    flex-direction: column;
+}
+
+.message-sender {
+    flex:1;
+}
+
+.message-sender p {
+    margin: 10px;
+    margin-left: 15px;
+    font-size: 15px;
+    margin-bottom: 5px;
+}
+
+.message-content {
+    flex:2;
+    height: fit-content;
+}
+.message-content p {
+    margin: 10px;
+    margin-left: 15px;
+    margin-bottom: 5px;
+    margin-top: 0px;
+    font-size: 12px;
+}

@@ -1,0 +1,50 @@
+
+.btn-container {
+    width: fit-content;
+    height: 28px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    margin: auto;
+    background-color: white;
+}
+
+.main-btn {
+    margin: auto;
+    width: fit-content;
+    min-width: 20px;
+    
+    padding-top: 10px;
+    padding-bottom: 10px;
+
+    padding-left: 50px;
+    padding-right: 50px;
+
+    border-radius: 10px;
+    background-color: #EDCDC2;
+}
+.main-btn:hover {
+    background-color: #e3c1b6;
+}
+.main-btn:active  {
+    background-color: #deb8ab;
+    padding-top: 9px;
+    padding-bottom: 9px;
+    margin-top:1px;
+    padding-left: 49px;
+    padding-right: 49px;
+}
+.main-btn p {
+    font-family: 'Trebuchet MS', sans-serif;
+    margin: 0px;
+    font-size: 12px;
+    text-align: center;
+    font-weight: bold;
+    color: white;
+
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none; 
+    -ms-user-select: none; 
+    user-select: none;
+}

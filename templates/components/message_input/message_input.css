@@ -1,0 +1,56 @@
+
+
+.message_input_wpr {
+    width: 95%;
+    height: 60%;
+    margin: auto;
+    margin-top: 12px;
+    display: flex;
+}
+.message_input_textarea {
+    flex:10;
+    height: 100%;
+}
+.send_message_btn {
+    flex:1;
+    max-width: 50px;
+    background-color: #EDCDC2;
+    display: flex;
+    justify-items: center;
+    align-items: center;
+    border-radius: 0px 5px 5px 0px;
+    transition: background-color 0.3s ease-in-out;
+}
+
+.send_message_btn svg {
+    height: 50%;
+    width: 50%;
+    flex:2;
+    transition: width 0.05s ease-in-out, height 0.05s ease-in-out;
+}
+
+.send_message_btn:hover svg {
+    height: 52%;
+    width: 52%;
+}
+
+.send_message_btn:active svg {
+    height: 48%;
+    width: 48%;
+}
+
+.send_message_btn:active {
+    background-color: #eac9be;
+}
+
+.message_input {
+    overflow: hidden;
+    height: 92%;
+    resize: none;
+    border: none;
+    border-left: 1px solid #000000;
+    border-top: 1px solid #000000;
+    border-bottom: 1px solid #000000;
+    outline: none;
+    border-radius: 5px 0px 0px 5px;
+}

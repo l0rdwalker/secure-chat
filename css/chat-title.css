@@ -1,0 +1,16 @@
+.chat-name {
+    flex: 1;
+}
+.chat-name input {
+    margin: 10px;
+    margin-bottom: 0px;
+    font-size: 20px;
+    width: 50%;
+    min-width: fit-content;
+    font-family: 'Trebuchet MS', sans-serif;
+    border: none; 
+    outline: none;
+}
+.chat-name input:focus {
+    border-bottom: 1px solid #000000;
+}

@@ -1,0 +1,227 @@
+<html>
+    <link rel="stylesheet" href="css/btn.css">
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/content-row.css">
+    <link rel="stylesheet" href="css/toggle.css">
+    <link rel="stylesheet" href="css/messager.css">
+    <link rel="stylesheet" href="css/messager-members.css">
+    <link rel="stylesheet" href="css/chat-title.css">
+    <link rel="stylesheet" href="css/message-history.css">
+    <link rel="stylesheet" href="css/message-input.css">
+
+    <script>
+        let state = false;
+        function switch_state(element) {
+            let highlight = document.getElementById("main_slide_btn");
+            let width = (document.getElementById("toggle-page-wpr").getBoundingClientRect()['width']/2)+3;
+            let height = (document.getElementById("toggle-page-wpr").getBoundingClientRect()['height'])+2.5;
+            
+            if (state) {
+                highlight.style.transform = "translate(0px,-"+height+"px)";
+                highlight.style.borderRadius = "10px 0px 0px 10px";
+                state = false;
+            } else {
+                highlight.style.transform = "translate("+width+"px,-"+height+"px)";
+                highlight.style.borderRadius = "0px 10px 10px 0px";
+                state = true;
+            }
+        }
+    
+    </script>
+
+    <style>
+        p {
+            padding: 0px;
+            margin: 0px;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none; 
+            -ms-user-select: none; 
+            user-select: none;
+            font-family: 'Trebuchet MS', sans-serif;
+        }
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 95%;
+        }
+        .main-divisor-wpr {
+            display: flex;
+            background-color: #FFFFFF;
+            width: 100%;
+            height: 100%;
+        }
+
+        .main-page {
+            flex:5;
+        }
+        .sidebar-divisor {
+            flex:1;
+            border-right: 1px solid #DDDDDD;
+        }
+        .content-container {
+            width: 100%;
+            height: 100%;
+        }
+
+        .main-content-wpr {
+            width: 95%;
+            height: 100%;
+            margin: auto;
+            margin-top: 20px;
+        }
+    </style>
+
+    <div class="header">
+        <div class="logo-container">
+            <div class="header_logo">
+                <h3>GirlChatz</h3>
+            </div>
+            <div class="usyd-logo">
+                <img src="https://edstem.org/themes/usyd-appbar.svg" width="80px" alt="Logo">
+            </div>
+        </div>
+
+        <div class="white-space-seperator">
+            
+            <div id="toggle-page-wpr" class="toggle-wpr">
+                <div onclick="switch_state(this)" class="toggle">
+                    <div class="switch_division">
+                        <p>Chatroom</p>
+                    </div>
+                    <div class="switch_division">
+                        <p>Articles</p>
+                    </div>
+                </div>
+                <div onclick="switch_state(this)" id="main_slide_btn" class="btn"></div>
+            </div> 
+
+        </div>
+
+        <div class="notification-container">
+            <div class="svg-wpr">
+                <svg width="25px" height="25px" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18.9,11.2s0-8.7-6.9-8.7-6.9,8.7-6.9,8.7v3.9L2.5,17.5h19l-2.6-2.4Z" fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+                    <path d="M14.5,20.5s-.5,1-2.5,1-2.5-1-2.5-1" fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>        
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <body>
+    
+        <div class="main-divisor-wpr">
+            <div class="sidebar-divisor">
+                <div class="btn-container">
+                    <div class="main-btn">
+                        <p>NEW CHAT</p>
+                    </div>
+                </div>
+
+                <div class="content-container">
+
+                    <div class="content-cell">
+                        <div class="content-cell-flex-wpr">
+                            <div class="chatname-wpr">
+                                <p>Chat-nameasdasdasdasdasdasdasdasd</p>
+                            </div>
+                            <div class="chat-des-wpr">
+                                <p>Alex: that is pretty cool</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="main-page">
+                <div class="main-content-wpr">
+
+                    <div class="messenger_content">
+
+                        <div class="messenger_header blow-out">
+                            
+                            <div class="chat-name blow-out">
+                                <input type="chat_name" name="chat_name" placeholder="chat_name" />
+                            </div>
+
+                            <div class="chat-members blow-out">
+
+                                <div class="connected-users-wpr blow-out">
+                                    <div class="chat-user">
+                                        <p>William Walker</p>
+                                    </div>
+                                    <div class="chat-user dull-input">
+                                        <input type="add_user" name="add_user" placeholder="ADD USER" />
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </div>
+
+                        <div class="message_history blow-out">
+
+                            <div class="message-history">
+                                <div class="message-sender blow-out">
+                                    <p>William Walker</p>
+                                </div>
+                                <div class="message-content blow-out">
+                                    <p>This is a message that I have sent over to you. And I hope you will enjoy seeing this message.</p>
+                                </div>
+                            </div>
+
+                            <div class="message-history">
+                                <div class="message-sender blow-out">
+                                    <p>William Walker</p>
+                                </div>
+                                <div class="message-content blow-out">
+                                    <p>This is a message that I have sent over to you. And I hope you will enjoy seeing this message.</p>
+                                </div>
+                            </div>
+
+                            <div class="message-history">
+                                <div class="message-sender blow-out">
+                                    <p>William Walker</p>
+                                </div>
+                                <div class="message-content blow-out">
+                                    <p>This is a message that I have sent over to you. And I hope you will enjoy seeing this message.</p>
+                                </div>
+                            </div>
+
+
+
+
+                        </div>
+
+
+                        <div class="user_controls blow-out">
+                            <div class="message_input_wpr">
+                                <div class="message_input_textarea">
+                                    <textarea class="message_input blow-out"></textarea>
+                                </div>
+                                <div class="send_message_btn">
+                                    <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                        <path fill="#ffffff" fill-rule="evenodd" d="M3 4a1 1 0 0 0-.822 1.57L6.632 12l-4.454 6.43A1 1 0 0 0 3 20h13.153a1 1 0 0 0 .822-.43l4.847-7a1 1 0 0 0 0-1.14l-4.847-7a1 1 0 0 0-.822-.43H3Z" clip-rule="evenodd"/>
+                                    </svg>                                      
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                    </div>
+
+                </div>
+            </div>
+
+
+        </div>
+
+
+    </body>
+
+</html>

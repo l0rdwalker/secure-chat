@@ -1,0 +1,35 @@
+.toggle-wpr {
+    width: 100px;
+    height: 20px;
+    margin: auto;
+    margin-top: 6.8px;
+}
+
+.toggle {
+    height: 100%;
+    width: 100%;
+    background-color: #ffffff;
+    border: 3px solid #debbaf;
+    border-radius: 10px;
+    display: flex;
+}
+
+.switch_division {
+    float: 1;
+    width: 100%;
+}
+.switch_division p {
+    margin-top: 7px;
+    font-size: 7px;
+    text-align: center;
+}
+
+.btn {
+    width: 50%;
+    height: 105%;
+    background-color: #d7a898;
+    opacity: 50%;
+    border-radius: 10px 0px 0px 10px;
+    transform: translate(0px,-23px);
+    transition: transform 0.1s ease-in-out, border-radius 0.1s ease-in-out;
+}

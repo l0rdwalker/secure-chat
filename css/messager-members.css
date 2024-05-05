@@ -1,0 +1,31 @@
+
+.chat-members {
+    flex: 1;
+    max-height: 100%;
+    height: fit-content;
+}
+
+.connected-users-wpr {
+    margin: 10px;
+    display: flex;
+}
+.chat-user {
+    border: 1px solid rgb(249, 139, 71);
+    width: fit-content;
+    height: fit-content;
+    margin-right: 10px;
+    padding-left: 5px;
+    padding-right: 5px;
+    border-radius: 5px;
+}
+
+.dull-input {
+    border: 1px solid rgb(138, 138, 138);
+}
+
+.chat-user input {
+    border: none; 
+    outline: none;
+    min-width: fit-content;
+    font-family: 'Trebuchet MS', sans-serif;
+}
