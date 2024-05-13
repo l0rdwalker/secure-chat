@@ -8,9 +8,11 @@
  
     <div class="sidebar-divisor">
         <div class="content-container">
-            {% include './components/btn/btn.jinja' %}
+            <div class="content-vertical-container">
+                {% include './components/btn/btn.jinja' %}
 
-            {% include './components/content-cell/content-cell.jinja' %}
+                {% include './components/content-cell/content-cell.jinja' %}
+            </div>
         </div>
     </div>
 {% endblock %}

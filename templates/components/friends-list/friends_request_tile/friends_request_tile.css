@@ -1,4 +1,4 @@
-.friend_list_row {
+.friend_request_list_row {
     width: 100%;
     height: 50px;
     margin-bottom: 2px;
@@ -6,26 +6,34 @@
     display: flex;
 }
 
-.status {
-    height: 100%;
-    flex:1;
-    
+.friend_request_controls {
+    flex:2;
+    padding-right: 10px;
+    display: flex;
 }
 
-.friend_user_name {
+.friend_request_user_name {
     height: 100%;
-    flex:9;
+    flex:6;
     display: flex;
     justify-content:flex-start;
     align-items:center;
 }
 
+.request_controls_btn_wpr {
+    flex:1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .username_wpr {
     width: fit-content;
     height: 20px;
+    padding-left: 10px;
 }
 
-.friend_user_name p {
+#username_request_text p {
     text-align: center;
     font-size: 14px;
     font-family: 'Trebuchet MS', sans-serif;

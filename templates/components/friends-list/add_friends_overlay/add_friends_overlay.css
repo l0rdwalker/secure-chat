@@ -1,0 +1,67 @@
+.add_friend_overlay {
+    position: absolute;
+    height:100%;
+    width:100%;
+    top:0px;
+    background-color:rgba(0, 0, 0, 0.411);
+    z-index:1;
+    display: None;
+    align-items: center;
+    justify-content: center;
+}
+
+.add_friend_window {
+    flex:1;
+    max-width: 50%;
+    min-width: 500px;
+    height: 500px;
+    background-color: white;
+    opacity: 1;
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.add_friend_results_wpr {
+    flex:1;
+    width: 100%;
+    height: fit-content;
+    background-color: rgb(233, 233, 233);
+}
+
+.add_friend_search_wpr {
+    flex: 1; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.add_friend_results {
+    flex: 6;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    overflow-y: scroll;
+}
+
+.add_friend_search {
+    flex:1;
+    width: 95%;
+    height: 70%;
+    margin: 10px;
+}
+
+.add_friend_search input {
+    width: 100%;
+    padding: 12px 12px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.add_friend_search p {
+    margin-left:5px;
+}

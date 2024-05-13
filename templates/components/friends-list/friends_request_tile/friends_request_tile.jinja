@@ -1,0 +1,21 @@
+{% block content %} 
+    <style>
+        {% include './components/friends-list/friends_request_tile/friends_request_tile.css' %}
+    </style> 
+    
+    <div class="friend_request_list_row">
+        <div class="friend_request_user_name">
+            <div class="username_wpr">
+                <p id="username_request_text">William Walker</p>
+            </div>
+        </div>
+        <div class="friend_request_controls">
+            <div class="request_controls_btn_wpr">
+                {% include './components/friends-list/friends_request_tile/accept_btn/accept_btn.jinja' %}
+            </div>
+            <div class="request_controls_btn_wpr">
+                {% include './components/friends-list/friends_request_tile/reject_btn/reject_btn.jinja' %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

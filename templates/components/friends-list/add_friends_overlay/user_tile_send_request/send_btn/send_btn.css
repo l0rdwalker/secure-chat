@@ -1,0 +1,22 @@
+.add-friend-btn-wpr {
+    height:25px;
+    width:25px;
+    background-color: rgb(67, 202, 255);
+    border-radius: 5px;
+    margin: auto;
+}
+
+.add-friend-btn-wpr:hover {
+    height:30px;
+    width:30px;
+    background-color: rgb(67, 202, 255);
+    border-radius: 5px;
+    margin: auto;
+}
+.add-friend-btn-wpr:active {
+    height:25px;
+    width:25px;
+    background-color: #1d89b4;
+    border-radius: 5px;
+    margin: auto;
+}

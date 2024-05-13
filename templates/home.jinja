@@ -32,6 +32,14 @@
         .content-container {
             width: 100%;
             height: 100%;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: stretch;
+        }
+
+        .content-vertical-container {
+            flex: 1;
         }
 
         .main-content-wpr {
@@ -42,8 +50,18 @@
         }
     </style>
 
+    <script src="/static/js/libs/socket.io.min.js"></script>
     <script>
+
+        const secret_key = sessionStorage.getItem("key");
+        const user_hash = sessionStorage.getItem("user_hash");
+        const user_name = sessionStorage.getItem("username");
+
+        document.cookie = "username="+user_name;
+        document.cookie = "user_hash="+user_hash;
+
         const socket = io();
+        
     </script>
 
     <body>

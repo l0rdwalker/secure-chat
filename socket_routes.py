@@ -70,6 +70,23 @@ def security_check(message_obj,connection_id): #Generic security check that is r
         return True
     inform_error("Invalid credentials",connection_id,registered=False)
 
+@socketio.on('user_search_get_all')
+def user_search_list(message):
+    message_json = json.loads(message)
+    
+    user_name = message_json["sender"]
+    
+    existing_friends = db.get_friends_by_username(user_name)
+    all_users_objs = db.get_all_users()
+    all_users_array = []
+    sent_requests = db.get_friend_sent_requests(user_name)
+    
+    for x in range(0,len(all_users_objs)):
+        if not (all_users_objs[x].user_name in existing_friends) and not (all_users_objs[x].user_name == user_name):
+            all_users_array.append([all_users_objs[x].user_name,all_users_objs[x].user_name in sent_requests])
+    
+    emit("user_search_get_all",json.dumps({"users":all_users_array}),room=user_aggregator.get_relay_connection_reference(user_name))
+
 @socketio.on('connect')
 def connect(): #Main method which establishes connection to oncoming users
     user_name = request.cookies.get("username")
@@ -113,29 +130,39 @@ def get_message_history(message): #Gets the convo history for two users, accesse
         history = db.get_message_history_db(message_json['sender'],message_json['recipient'])
         emit("message_history",history,room=user_aggregator.get_relay_connection_reference(message_json['sender']))
 
+@socketio.on("cancel_friend_request") 
+def cancel_friend_request(message):
+    message_json = json.loads(message)
+    if db.is_valid_username(message_json['sender']) and db.is_valid_username(message_json['recipient']):
+        if not message_json['sender']==message_json['recipient']: 
+            db.delete_friend_request(message_json['sender'],message_json['recipient'])
+            if (user_aggregator.is_online(message_json['recipient'])):
+                relay_friend_requests(message_json['recipient'])
+            user_search_list(message)
+            relay_friend_requests(message_json['sender'])   
+
 @socketio.on("send_friend_request") 
 def send_friend_request(message):
     message_json = json.loads(message)
-    if (security_check(message_json,request.sid)):
-        if db.is_valid_username(message_json['sender']) and db.is_valid_username(message_json['recipient']):
-            if not message_json['sender']==message_json['recipient']: 
-                db.send_friend_request(message_json['sender'],message_json['recipient'])
-                if (user_aggregator.is_online(message_json['recipient'])):
-                    relay_friend_requests(message_json['recipient'])
-                relay_friend_requests(message_json['sender'])   
+    if db.is_valid_username(message_json['sender']) and db.is_valid_username(message_json['recipient']):
+        if not message_json['sender']==message_json['recipient']: 
+            db.send_friend_request(message_json['sender'],message_json['recipient'])
+            if (user_aggregator.is_online(message_json['recipient'])):
+                relay_friend_requests(message_json['recipient'])
+            user_search_list(message)
+            relay_friend_requests(message_json['sender'])   
             
 @socketio.on("send_friend_request_response") 
 def send_friend_request_response(message):
     message_json = json.loads(message)
-    if (security_check(message_json,request.sid)):
-        if db.is_valid_username(message_json['sender']) and db.is_valid_username(message_json['recipient']):
-            if (message_json['message']):
-                db.append_friends_relationship(message_json['sender'],message_json['recipient'])
-            db.delete_friend_request(message_json['sender'],message_json['recipient'])
-            
-            if (user_aggregator.is_online(message_json['sender'])):
-                relay_online_friends_list(message_json['sender'])
-                relay_friend_requests(message_json['sender'])
-            if (user_aggregator.is_online(message_json['recipient'])):
-                relay_online_friends_list(message_json['recipient'])
-                relay_friend_requests(message_json['recipient'])
+    if db.is_valid_username(message_json['sender']) and db.is_valid_username(message_json['recipient']):
+        if (message_json['message']):
+            db.append_friends_relationship(message_json['sender'],message_json['recipient'])
+        db.delete_friend_request(message_json['sender'],message_json['recipient'])
+        
+        if (user_aggregator.is_online(message_json['sender'])):
+            relay_online_friends_list(message_json['sender'])
+            relay_friend_requests(message_json['sender'])
+        if (user_aggregator.is_online(message_json['recipient'])):
+            relay_online_friends_list(message_json['recipient'])
+            relay_friend_requests(message_json['recipient'])

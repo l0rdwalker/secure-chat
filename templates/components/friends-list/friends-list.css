@@ -2,3 +2,34 @@
     flex:1;
     border-right: 1px solid #DDDDDD;
 }
+
+
+
+
+
+
+
+
+
+
+.friend-requests {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
+}
+
+.friend-requests-title {
+    flex: 1;
+    max-height: 20px;
+}
+.friend-requests-title p {
+    padding-left: 9px;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.friend-request-entrys-wpr {
+    flex: 1;
+}

@@ -67,7 +67,7 @@ Sign up page, pretty much the same as login.
                 
                 if (res.data['error'] == null) {
                     sessionStorage.setItem('token',res.data['access_token']);
-                    window.open(res.data['redirect'], "_self");
+                    //window.open(res.data['redirect'], "_self");
                 } else {
                     alert(res.data['error']);
                 }

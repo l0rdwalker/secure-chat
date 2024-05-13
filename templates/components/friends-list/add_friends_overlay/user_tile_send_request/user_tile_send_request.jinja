@@ -1,0 +1,15 @@
+{% block content %} 
+    <style>
+        {% include './components/friends-list/add_friends_overlay/user_tile_send_request/user_tile_send_request.css' %}
+    </style>
+
+    <div class="user_row">
+        <div class="user_row_username">
+            <p id="user_name_add_tile"></p>
+        </div>
+        <div class="user_row_username_user_action">
+            {% include './components/friends-list/add_friends_overlay/user_tile_send_request/send_btn/send_btn.jinja' %}
+        </div>
+    </div>
+
+{% endblock %}

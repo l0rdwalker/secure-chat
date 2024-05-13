@@ -1,0 +1,30 @@
+
+.user_row {
+    width: 100%;
+    height: 50px;
+    background-color: white;
+    margin-bottom: 2px;
+    display: flex;
+}
+
+.user_row p {
+    padding-left: 20px;
+    padding-top: 15px;
+}
+
+.user_row_username {
+    flex: 9;
+}
+
+.user_row_username_user_action {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.sent .user_row_username_user_action p {
+    padding-bottom: 17px;
+    padding-right:15px;
+    color: blue;
+}

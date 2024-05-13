@@ -1,0 +1,93 @@
+{% block content %} 
+
+    <script>
+        function get_user_data() {
+            socket.emit("user_search_get_all",JSON.stringify({"sender":user_name})); 
+        }
+
+        function close_add_friends(event,element) {
+            if (event.target != element) {
+                event.stopPropagation();
+                return;
+            }
+            element.style.display = "None";
+        }
+
+        function open_add_friends() {
+            const overlay = document.getElementById("add_friend_overlay");
+            overlay.style.display = "flex"; 
+            get_user_data();
+        }
+
+        function construct_friend_search_results(user_search) {
+            const results = document.getElementById("add_friend_results_wpr");
+
+            var rows = document.getElementsByClassName("user_row");
+            while (rows.length != 0) {
+                if (rows[0] != null) {
+                    rows[0].remove();
+                }
+                rows = document.getElementsByClassName("user_row");
+            }
+
+            for (var i = 0; i < user_search.length; i++) {
+                var element = document.createElement('div');
+                if (user_search[i][1]) {
+                    element.innerHTML = `{% include './components/friends-list/add_friends_overlay/user_tile_cancel_request/user_tile_cancel_request.jinja' %}`;
+                } else {
+                    element.innerHTML = `{% include './components/friends-list/add_friends_overlay/user_tile_send_request/user_tile_send_request.jinja' %}`;
+                }
+                
+                element.querySelector("#user_name_add_tile").innerText = user_search[i][0];
+                results.appendChild(element);
+            }
+        }
+
+        socket.on("user_search_get_all", async (msg, color="black") => {
+            var all_users = JSON.parse(msg)['users'];
+            var filtered_users = [];
+            var input_value = document.getElementById('filter_text_element').value;
+
+            for (var i = 0; i < all_users.length; i++) {
+                if (all_users[i][0].includes(input_value)) {
+                    filtered_users.push(all_users[i]);
+                }
+            }
+
+            construct_friend_search_results(filtered_users);
+        })
+
+        function send_friend_request(element) {
+            var recipient = element.parentNode.parentNode.querySelector("#user_name_add_tile").innerText;
+            socket.emit('send_friend_request',JSON.stringify({sender: user_name, recipient:recipient, message:""})); 
+        }
+
+        function cancel_friend_request(element) {
+            var recipient = element.parentNode.parentNode.querySelector("#user_name_add_tile").innerText;
+            socket.emit('cancel_friend_request',JSON.stringify({sender: user_name, recipient:recipient, message:""}))
+        }
+    </script>
+
+
+
+    <style>
+        {% include './components/friends-list/add_friends_overlay/add_friends_overlay.css' %}
+    </style> 
+
+    <div onclick="close_add_friends(event, this)" id="add_friend_overlay" class="add_friend_overlay">
+
+        <div class="add_friend_window">
+            <div class="add_friend_search_wpr">
+                <div class="add_friend_search">
+                    <input type="text" id="filter_text_element" onkeydown="get_user_data()">
+                </div>
+            </div>
+            <div class="add_friend_results">
+                <div id="add_friend_results_wpr" class="add_friend_results_wpr">
+                    
+                </div>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}

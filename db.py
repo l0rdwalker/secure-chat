@@ -74,6 +74,17 @@ def get_friend_requests(user_name):
             just_names.append([request.sender,'pending'])
         return just_names
     
+def get_friend_sent_requests(user_name):
+    with Session(engine) as session:
+        requests = session.query(friend_request).filter(friend_request.receiver == user_name).all()
+        sent_requests = session.query(friend_request).filter(friend_request.sender == user_name).all()
+        just_names = []
+        for request in requests:
+            just_names.append(request.receiver)
+        for request in sent_requests:
+            just_names.append(request.receiver)
+        return just_names
+    
 def delete_friend_request(sender_user_name,receiver_user_name):
     with Session(engine) as session:
         sender_to_reciever = session.query(friend_request).filter(friend_request.sender == sender_user_name).filter(friend_request.receiver == receiver_user_name).first()
@@ -108,6 +119,11 @@ def append_friends_relationship(user_name_one,user_name_two):
                 friend_relationship = friends_list(user_one=user_name_one,user_two=user_name_two)
                 session.add(friend_relationship)
                 session.commit()
+                
+def get_all_users():
+    with Session(engine) as session:
+        all_users = session.query(user_refactored).all()
+        return all_users
         
 def get_friends_by_username(user_name:str):
     if (is_valid_username(user_name)):

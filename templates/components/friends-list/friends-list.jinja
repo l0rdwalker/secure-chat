@@ -5,11 +5,96 @@
     <style>
         {% include './components/friends-list/friends-list.css' %}
     </style> 
+
+    <script>
+        function clear_friends_list() {
+            var elements = document.getElementsByClassName("friend_list_row");
+            while (document.getElementsByClassName("friend_list_row").length > 0) {
+                elements[0].remove();
+                elements = document.getElementsByClassName("friend_list_row");
+            }
+        }
+
+        function update_friends_list(users) {
+            var friends_list = document.getElementById("friends_list_anchor");
+            for (var i = 0; i < users.length; i++) {
+                var element = document.createElement('div');
+                element.innerHTML = `{% include './components/friends-list/friends_list_tile/friends_list_tile.jinja' %}`;
+
+                element.querySelector("#username_text").innerText = users[i][0];
+
+                if (users[i][1]) {
+                    element.querySelector("#online-offline").className = "online";   
+                } else {
+                    element.querySelector("#online-offline").className = "offline";   
+                }
+                
+                friends_list.appendChild(element);
+            }
+        }
+
+        socket.on("update_friends_list", (msg, color="black") => {
+            friend_request_data = JSON.parse(msg)['friends_list']; // Parse and assign before calling the function
+            clear_friends_list();
+            update_friends_list(friend_request_data);
+        });
+
+        
+
+        function clear_friend_requests_list() {
+            while (document.getElementsByClassName("friend_request_list_row").length != 0) {
+                document.getElementsByClassName("friend_request_list_row")[0].remove(0);
+            }
+        }
+
+        function update_friend_requests(requests) {
+            const friend_requests_column = document.getElementById('friend-request-entrys-wpr');
+            for (var i = 0; i < requests.length; i++) {
+                if (requests[i][1] != "pending") {
+                    var element = document.createElement("div");
+                    element.innerHTML = `{% include './components/friends-list/friends_request_tile/friends_request_tile.jinja' %}`;
+                    element.querySelector("#username_request_text").innerText = requests[i][0];
+                    friend_requests_column.appendChild(element); 
+                }
+            }
+        }
+
+        socket.on("update_friend_requests", (msg, color="black") => {
+            friend_request_data = JSON.parse(msg)['requests']; // Parse and assign before calling the function
+            clear_friend_requests_list();
+            update_friend_requests(friend_request_data);
+        });
+
+        function respond_friend_request(acceptence, element) {
+            var recipient = element.parentElement.parentElement.parentElement.querySelector("#username_request_text").innerText;
+            socket.emit('send_friend_request_response',JSON.stringify({sender: user_name, recipient:recipient, message:acceptence}));  
+        }
+
+    </script>
  
+    {% include './components/friends-list/add_friends_overlay/add_friends_overlay.jinja' %}
+
     <div class="sidebar-divisor">
         <div class="content-container">
+            <div id="friends_list_anchor" class="content-vertical-container">
+                {% include './components/friends-list/btn/btn.jinja' %}
+            </div>
+            <div class="content-vertical-container">
 
-            {% include './components/friends_list_tile/friends_list_tile.jinja' %}
+                <div class="friend-requests">
+                    <div class="friend-requests-title">
+                        <p>Friend Requests</p>
+                    </div>
+                    <div id="friend-request-entrys-wpr" class="friend-request-entrys-wpr">
+                        
+                    </div>
+                </div>
+
+
+            </div>
         </div>
     </div>
+
+
+
 {% endblock %}
