@@ -1,12 +1,12 @@
 {% block content %} 
     <style>
-        {% include './components/content-cell/content-cell.css' %}
+        {% include './components/messager/content-cell/content-cell.css' %}
     </style> 
     
-    <div class="content-cell">
+    <div onclick="OPEN_chat(this)" chat_room_id="" id="content-cell" class="content-cell">
         <div class="content-cell-flex-wpr">
             <div class="chatname-wpr">
-                <p>Chat-nameasdasdasdasdasdasdasdasd</p>
+                <p id="chatroom_name_cell">Chat-nameasdasdasdasdasdasdasdasd</p>
             </div>
             <div class="chat-des-wpr">
                 <p>Alex: that is pretty cool</p>

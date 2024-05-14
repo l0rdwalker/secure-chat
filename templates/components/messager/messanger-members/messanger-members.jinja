@@ -1,0 +1,74 @@
+                            
+                            
+{% block content %}   
+    <style>
+        {% include './components/messager/messanger-members/messanger-members.css' %}
+    </style> 
+
+    <script>
+        function CLEAR_message_members(member_array) {
+            while (document.getElementsByClassName("generic_user_tag").length > 0) {
+                document.getElementsByClassName("generic_user_tag")[0].remove();
+            }
+        }
+
+        function LOAD_message_members(member_array) {
+            CLEAR_message_members();
+            var parent_element = document.getElementById("connected-users-wpr");
+            for (var i = 0; i < member_array.length; i++) {
+                var element = document.createElement('div');
+                element.innerHTML = `{% include './components/messager/messanger-inchat-usertag/messanger-inchat-usertag.jinja' %}`;
+                element.querySelector("#chat-user-name").innerText = member_array[i];
+                parent_element.prepend(element);
+            }
+        }
+
+        socket.on("name_suggestion", (msg, color="black") => {
+            suggested_name = JSON.parse(msg)['suggestion'];
+            if (suggested_name == null) {
+                document.getElementById("suggested_friend").innerText = "";
+            } else {
+                suggested_name = suggested_name.substring(document.getElementById("add_friend_chat").value.length)
+                document.getElementById("suggested_friend").innerText = suggested_name;
+            }
+        });
+
+        function add_user_key_type(event) {
+            var input_elem = document.getElementById("add_friend_chat");
+            if (input_elem.value.length == 0) {
+                input_elem.style.width = '9ch';
+                document.getElementById("suggested_friend").innerText = "";
+            } else {
+                input_elem.style.width = String(input_elem.value.length) + "ch";
+                socket.emit('get_autocomplete_suggestions',JSON.stringify({sender: user_name, entered: input_elem.value}));
+            }
+        }
+
+        function add_user_to_chat() {
+            var input_elem = document.getElementById("add_friend_chat");
+            var suggested_text = document.getElementById("suggested_friend").innerText;
+
+            var entered_test = input_elem.value + suggested_text;
+            input_elem.value = "";
+            document.getElementById("suggested_friend").innerText = "";
+
+            socket.emit('add_user_to_chat',JSON.stringify({sender: user_name, 'add_user': entered_test, 'chat_room_id': ACTIVE_CHAT_ID}));
+        }
+
+
+    </script>
+    
+    <div class="chat-members blow-out">
+
+        <div class="chat-members blow-out">
+            <div id="connected-users-wpr" class="connected-users-wpr blow-out">
+
+                <div class="chat-user dull-input">
+                    <input id="add_friend_chat" onchange="add_user_to_chat()" onkeyup="add_user_key_type()" onkeydown="add_user_key_type()" type="add_user" name="add_user" placeholder="ADD USER" />
+                    <span id="suggested_friend"></span>
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}

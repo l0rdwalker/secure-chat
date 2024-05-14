@@ -1,0 +1,17 @@
+{% block content %} 
+    <style>
+        {% include './components/sidebar/new_chat_btn/new_chat_btn.css' %}
+    </style> 
+
+    <script>
+        function create_new_chat() {
+            socket.emit('new_chat_room',JSON.stringify({sender: user_name, recipient:"", message:""}));  
+        }
+    </script>
+
+    <div onclick="create_new_chat()" class="btn-container">
+        <div class="main-btn">
+            <p>NEW CHAT</p>
+        </div>
+    </div>
+{% endblock %}

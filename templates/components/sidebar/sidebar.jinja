@@ -5,13 +5,48 @@
     <style>
         {% include './components/sidebar/sidebar.css' %}
     </style> 
+
+    <script>
+        var GLOBAL_CHAT_LIST = null;
+
+        function CLEAR_chatrooms_list() {
+            while (document.getElementsByClassName("content-cell").length > 0) {
+                document.getElementsByClassName("content-cell")[0].remove();
+            }
+        }
+
+        function LOAD_chatrooms_list(chat_rooms_array) {
+            CLEAR_chatrooms_list();
+            var chat_container = document.getElementById("chathistory-wpr");
+            for (var i = 0; i < chat_rooms_array.length; i++) {
+
+                var element = document.createElement("div");
+                element.innerHTML = `{% include './components/messager/content-cell/content-cell.jinja' %}`;
+                element.querySelector("#chatroom_name_cell").innerText = chat_rooms_array[i]['chat_name'];
+
+                var sub_element = element.querySelector('#content-cell');
+                sub_element.setAttribute("chat_room_id", chat_rooms_array[i]['chat_id']);
+
+                chat_container.appendChild(element);
+            }
+        }
+
+        socket.on("your_chat_rooms", (msg, color="black") => {
+            chat_rooms = JSON.parse(msg)['chat_rooms'];
+            GLOBAL_CHAT_LIST = chat_rooms;
+            LOAD_chatrooms_list(chat_rooms);
+        });
+    </script>
  
     <div class="sidebar-divisor">
         <div class="content-container">
-            <div class="content-vertical-container">
-                {% include './components/btn/btn.jinja' %}
+            <div id="content-vertical-container" class="content-vertical-container">
+                {% include './components/sidebar/new_chat_btn/new_chat_btn.jinja' %}
 
-                {% include './components/content-cell/content-cell.jinja' %}
+
+                <div id="chathistory-wpr" class="overflowY-chatwpr">
+                
+                </div>
             </div>
         </div>
     </div>

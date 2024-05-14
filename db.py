@@ -10,6 +10,7 @@ import datetime
 import random #Should probably select something more secure
 import sys
 import os
+import datetime
 import json
 import common
 
@@ -138,35 +139,121 @@ def get_friends_by_username(user_name:str):
                 just_names.append(relationship.user_one)
             return just_names
         
-def record_message(user_one,user_two,message):
-    if (is_valid_username(user_one) == is_valid_username(user_two) == True):
+def create_new_chatroom(user_name:str):
+    try:
         with Session(engine) as session:
-            message_instance = message_history(user_one = user_one, user_two = user_two, message = message, time_stamp = int(datetime.datetime.now().timestamp()))
-            session.add(message_instance)
+            chat_room = chat_room_obj(chat_name=f'{user_name}s chat room')
+            session.add(chat_room)
             session.commit()
             
-def get_message_history_db(user_one, user_two):
-    if (is_valid_username(user_one) == is_valid_username(user_two) == True):
+            user_chat = user_chat_obj(chat_id=chat_room.chat_id,user_name=user_name)
+            session.add(user_chat)
+            session.commit()
+            
+            return user_chat.chat_id
+    except Exception as e:
+        return None
+        
+def get_chat_room_by_id(chat_room_id: int):
+    with Session(engine) as session:
+        chat_room = session.query(chat_room_obj).filter(chat_room_obj.chat_id == chat_room_id).first()
+        if not (chat_room == None):
+            chat_room_json_obj = {"chat_name":None,"chat_id":None,"members":[],"messages":[]}
+            chat_room_json_obj['chat_name'] = chat_room.chat_name
+            chat_room_json_obj['chat_id'] = chat_room_id
+            
+            users_in_chat = session.query(user_chat_obj).filter(user_chat_obj.chat_id == chat_room_id).all()
+            for user in users_in_chat:
+                chat_room_json_obj['members'].append(user.user_name)
+            
+            chat_room_messages = []
+            chat_room_message_obj = session.query(message_obj).filter(message_obj.chat_id == chat_room_id).all()
+            for message_instance in chat_room_message_obj:
+                chat_room_messages.append({
+                    'from' : message_instance.user_name,
+                    'Time' : message_instance.time_sent,
+                    'message' : message_instance.message
+                })
+                
+            chat_room_json_obj['messages'] = chat_room_messages
+            return chat_room_json_obj
+    return None
+        
+def add_message_to_chat(user_name,message,chat_id):
+    with Session(engine) as session:
+        message_instance = message_obj(user_name=user_name,chat_id=chat_id,time_sent=datetime.datetime.now().isoformat(),message=message)
+        session.add(message_instance)
+        session.commit()
+
+def is_valid_chatroomid(chatroom_id):
+    return not get_chat_room_by_id(chatroom_id) == None
+
+def get_chats_by_username(user_name):
+    with Session(engine) as session:
+        chat_room_objs = session.query(user_chat_obj).filter(user_chat_obj.user_name == user_name).all()
+        
+        chat_room_json = []
+        for chat_room in chat_room_objs:
+            chat_room_name = session.query(chat_room_obj).filter(chat_room_obj.chat_id == chat_room.chat_id).first()
+            chat_room_json.append({
+                'chat_name' : chat_room_name.chat_name,
+                'chat_id' : chat_room.chat_id
+            })
+        return chat_room_json
+    
+def set_chat_name(chat_id, new_name):
+    with Session(engine) as session:
+        chat_room = session.query(chat_room_obj).filter(chat_room_obj.chat_id == chat_id).first()
+        chat_room.chat_name = new_name
+        session.commit()
+        
+def get_random_chatroom_for_user(username):
+    try: 
         with Session(engine) as session:
-            left_comumn_detection = session.query(message_history).filter(message_history.user_one == user_one).filter(message_history.user_two == user_two).all()
-            right_column_detection = session.query(message_history).filter(message_history.user_two == user_one).filter(message_history.user_one == user_two).all()
-            
-            left_comumn_detection.extend(right_column_detection)
-            left_comumn_detection = sorted(left_comumn_detection, key=lambda friends_list:friends_list.time_stamp)
-            
-            formatted_messages = []
-            for message in left_comumn_detection:
-                formatted_messages.append(
-                    json.dumps(
-                        {
-                            "user":message.user_one,
-                            "message":message.message
-                        }
-                    )
-                )
-            
-            return json.dumps(
-                {
-                    "messages" : formatted_messages
-                }
-            )
+            chat_room = session.query(user_chat_obj).filter(user_chat_obj.user_name == username).first()
+            return chat_room.chat_id
+    except:
+        return None
+        
+def delete_chat_by_id(chat_id):
+    with Session(engine) as session:
+        chat_room = session.query(chat_room_obj).filter(chat_room_obj.chat_id == chat_id).first()
+        session.delete(chat_room)
+
+        users_to_update = []
+        user_chat_associations = session.query(user_chat_obj).filter(user_chat_obj.chat_id == chat_id).all()
+        for chat_user in user_chat_associations:
+            users_to_update.append(chat_user.user_name)
+            session.delete(chat_user)
+        
+        messages = session.query(message_obj).filter(message_obj.chat_id == chat_id).all()
+        for message in messages:
+            session.delete(message)
+        
+        session.commit()
+        
+        return users_to_update
+    
+def get_user_suggestion(entered_text,user_name):
+    try:
+        with Session(engine) as session:
+            #input = f'{entered_text}%'
+            #user = session.query(user_refactored).filter(user_refactored.user_name.like(input)).first()
+            friends = get_friends_by_username(user_name)
+            user = None
+            for friend in friends:
+                if friend.startswith(entered_text):
+                    user = friend
+                    break
+            return user
+    except:
+        return None
+
+def add_user_to_chat(user_name, chat_id):
+    with Session(engine) as session:
+        existing_user = session.query(user_chat_obj).filter(user_chat_obj.user_name == user_name).filter(user_chat_obj.chat_id == chat_id).first()
+        if (existing_user == None):
+            message_instance = user_chat_obj(user_name=user_name,chat_id=chat_id)
+            session.add(message_instance)
+            session.commit()
+        

@@ -1,0 +1,21 @@
+{% block content %} 
+    <style>
+        {% include './components/messager/chat-title/chat-title.css' %}
+    </style> 
+
+    <script>
+        function CHANGE_chat_title(element) {
+            var new_title = element.value;
+            socket.emit('change_chat_name',JSON.stringify({sender: user_name, "chat_id": ACTIVE_CHAT_ID, "new_chat_name":new_title}));
+        }
+
+        function LOAD_chat_title(name_str) {
+            var title_element = document.getElementById("chat_title_name");
+            title_element.value = name_str;
+        }
+    </script>
+    
+    <div class="chat-name blow-out">
+        <input onchange="CHANGE_chat_title(this)" id="chat_title_name" type="chat_name" name="chat_name" placeholder="chat_name" />
+    </div>
+{% endblock %}

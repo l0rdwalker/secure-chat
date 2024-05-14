@@ -23,6 +23,21 @@
     flex: 9;
 }
 
+.message_history_wpr {
+    flex: 9;
+}
+
 .user_controls {
     flex:2;
+}
+
+.title-delete-divide {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+}
+
+.delete_btn {
+    flex:1;
 }

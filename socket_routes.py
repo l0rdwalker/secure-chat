@@ -65,11 +65,6 @@ def jwt_token_check(token):
     except Exception as e:
         return False
 
-def security_check(message_obj,connection_id): #Generic security check that is referred to by many other functions.
-    if (jwt_token_check(message_obj['token']) and db.is_valid_username(message_obj['sender']) and user_aggregator.is_online(message_obj['sender']) and user_aggregator.get_relay_connection_reference(message_obj['sender']) == connection_id):
-        return True
-    inform_error("Invalid credentials",connection_id,registered=False)
-
 @socketio.on('user_search_get_all')
 def user_search_list(message):
     message_json = json.loads(message)
@@ -101,6 +96,7 @@ def connect(): #Main method which establishes connection to oncoming users
             
             relay_friend_requests(user_name)
             relay_online_friends_list(user_name)
+            get_user_chats(user_name)
     else:
         inform_error("Invalid connection credentials",request.sid,registered=False)
     
@@ -110,25 +106,6 @@ def manage_disconnect(): #Manages user disconnections
     if (user_aggregator.is_online(user_name)):
         user_aggregator.unrecognise_user(user_name)
         relay_online_friends_list(user_name,on_disconnect=True)
-
-@socketio.on("relay")
-def relay(message): #The main function which allows user-to-user communications
-    message_json = json.loads(message)
-    message_content_json = json.loads(message_json['message'])
-    
-    if (security_check(message_json,request.sid) and db.is_valid_username(message_json['sender'])):
-        recipient_connection_reference = user_aggregator.get_relay_connection_reference(message_json["recipient"])
-        if (message_content_json['type'] == "ciphertext"):
-            db.record_message(message_json['sender'],message_json['recipient'],message_content_json['content'])
-        if (user_aggregator.is_online(message_json['sender'])):
-            emit("incoming",message,room=recipient_connection_reference)
-    
-@socketio.on("get_message_history")
-def get_message_history(message): #Gets the convo history for two users, accessed when users open a chat. 
-    message_json = json.loads(message)
-    if (security_check(message_json,request.sid) and db.is_valid_username(message_json['sender'])):
-        history = db.get_message_history_db(message_json['sender'],message_json['recipient'])
-        emit("message_history",history,room=user_aggregator.get_relay_connection_reference(message_json['sender']))
 
 @socketio.on("cancel_friend_request") 
 def cancel_friend_request(message):
@@ -166,3 +143,71 @@ def send_friend_request_response(message):
         if (user_aggregator.is_online(message_json['recipient'])):
             relay_online_friends_list(message_json['recipient'])
             relay_friend_requests(message_json['recipient'])
+            
+@socketio.on("new_chat_room")
+def create_new_chat_room(message):
+    message_json = json.loads(message)
+    if db.is_valid_username(message_json['sender']):
+        chat_room_id = db.create_new_chatroom(message_json['sender'])
+        get_user_chats(message_json['sender'])
+        send_chat_room(json.dumps({'sender':message_json['sender'],'chat_room_id':chat_room_id}))
+
+@socketio.on("open_chat")
+def send_chat_room(message):
+    message_json = json.loads(message)
+    if db.is_valid_username(message_json['sender']):
+        chat_room_details = db.get_chat_room_by_id(message_json['chat_room_id'])
+        emit("open_chat_room",json.dumps(chat_room_details),room=user_aggregator.get_relay_connection_reference(message_json['sender']))
+
+@socketio.on("add_user_to_chat")
+def add_user_to_chat(message):
+    message_json = json.loads(message)
+    if (db.is_valid_username(message_json['sender']) and db.is_valid_username(message_json['add_user'])):
+        if (db.is_valid_chatroomid(message_json['chat_room_id'])):
+            db.add_user_to_chat(message_json['add_user'],message_json['chat_room_id'])
+            update_chat_for_relevent_online_users(message_json['chat_room_id'])
+
+@socketio.on("send_message_to_chat")
+def send_messaage_to_chat(message):
+    message_json = json.loads(message)
+    if db.is_valid_username(message_json['sender']) and db.is_valid_chatroomid(message_json['chat_room_id']):
+        db.add_message_to_chat(message_json['sender'],message_json['message'],message_json['chat_room_id'])
+        update_chat_for_relevent_online_users(message_json['chat_room_id'])
+        
+@socketio.on("get_user_chats")
+def get_user_chats(user_name):
+    emit('your_chat_rooms',json.dumps({"chat_rooms":db.get_chats_by_username(user_name)}),room=user_aggregator.get_relay_connection_reference(user_name))
+    
+@socketio.on('change_chat_name')
+def change_chat_name(message):
+    message_json = json.loads(message)
+    db.set_chat_name(int(message_json['chat_id']),message_json['new_chat_name'])
+    
+    update_chat_for_relevent_online_users(message_json['chat_id'])
+    
+def update_chat_for_relevent_online_users(chat_id):
+    chat_room = db.get_chat_room_by_id(chat_id)
+    for user in chat_room['members']:
+        if user_aggregator.is_online(user):
+            send_chat_room(json.dumps({'sender':user,'chat_room_id':chat_id}))
+            get_user_chats(user)
+
+@socketio.on("delete_chat_by_id")
+def delete_chat_by_id(message):
+    message_json = json.loads(message)
+    users_to_update = db.delete_chat_by_id(message_json['chat_room_id'])
+    
+    for user in users_to_update:
+        if user_aggregator.is_online(user):
+            get_user_chats(user)
+            new_chat_room_id = db.get_random_chatroom_for_user(user)
+            send_chat_room(json.dumps({'sender':user,'chat_room_id':new_chat_room_id}))
+    
+
+@socketio.on("get_autocomplete_suggestions")
+def get_autocomplete_suggestions(message):
+    message_json = json.loads(message)
+    suggestion = db.get_user_suggestion(message_json['entered'],message_json['sender'])
+
+    emit("name_suggestion",json.dumps({"suggestion":suggestion}),room=user_aggregator.get_relay_connection_reference(message_json['sender']))
+    

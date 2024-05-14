@@ -43,10 +43,23 @@ class friends_list(Base):
     user_one: Mapped[str] = mapped_column(String)
     user_two: Mapped[str] = mapped_column(String)
     
-class message_history(Base):
-    __tablename__ = "messages"
-    autoInc: Mapped[int] = mapped_column(Integer,primary_key=True, autoincrement=True)
-    user_one: Mapped[str] = mapped_column(String)
-    user_two: Mapped[str] = mapped_column(String)
+##############################
+
+class chat_room_obj(Base):
+    __tablename__ = "chat_room"
+    chat_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    chat_name: Mapped[str] = mapped_column(String)
+    
+class user_chat_obj(Base):
+    __tablename__ = "user_chat"
+    user_name: Mapped[str] = mapped_column(String)
+    chat_id: Mapped[int] = mapped_column(Integer)
+    entry_id: Mapped[int] = mapped_column(Integer,primary_key=True, autoincrement=True)
+    
+class message_obj(Base):
+    __tablename__ = "message"
+    user_name: Mapped[str] = mapped_column(String)
+    chat_id: Mapped[int] = mapped_column(Integer)
+    time_sent: Mapped[str] = mapped_column(String)
     message: Mapped[str] = mapped_column(String)
-    time_stamp: Mapped[int] = mapped_column(Integer)
+    entry_id: Mapped[int] = mapped_column(Integer,primary_key=True, autoincrement=True)

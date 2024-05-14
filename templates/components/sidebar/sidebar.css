@@ -1,4 +1,13 @@
 .sidebar-divisor {
     flex:1;
     border-right: 1px solid #DDDDDD;
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
+    
+}
+
+.overflowY-chatwpr {
+    height: 90vh;
+    overflow-y: scroll;
 }

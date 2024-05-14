@@ -1,0 +1,10 @@
+.btn-delete-chat-container {
+    width: 20px;
+    height: 20px;
+    margin: auto;
+}
+
+.btn-delete-chat-container :active {
+    width: 18px;
+    height: 18px;
+}

@@ -24,7 +24,7 @@
     flex: 1;
     max-height: 20px;
 }
-.friend-requests-title p {
+.bold_side_p_text {
     padding-left: 9px;
     font-size: 15px;
     font-weight: bold;
@@ -32,4 +32,12 @@
 
 .friend-request-entrys-wpr {
     flex: 1;
+}
+
+
+.friend-title {
+    padding-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }

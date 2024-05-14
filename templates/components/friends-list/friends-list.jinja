@@ -77,13 +77,22 @@
     <div class="sidebar-divisor">
         <div class="content-container">
             <div id="friends_list_anchor" class="content-vertical-container">
-                {% include './components/friends-list/btn/btn.jinja' %}
+
+                <div class="friend-title">
+                    <div style="flex: 6.5;">
+                        <p class="bold_side_p_text">Friends</p>
+                    </div>
+                    <div style="flex: 1;">
+                        {% include './components/friends-list/btn/btn.jinja' %}
+                    </div>
+                </div>
+
             </div>
             <div class="content-vertical-container">
 
                 <div class="friend-requests">
                     <div class="friend-requests-title">
-                        <p>Friend Requests</p>
+                        <p class="bold_side_p_text">Friend Requests</p>
                     </div>
                     <div id="friend-request-entrys-wpr" class="friend-request-entrys-wpr">
                         
