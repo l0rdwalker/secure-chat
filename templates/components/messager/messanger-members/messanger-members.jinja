@@ -31,6 +31,10 @@
                 suggested_name = suggested_name.substring(document.getElementById("add_friend_chat").value.length)
                 document.getElementById("suggested_friend").innerText = suggested_name;
             }
+            if (document.getElementById("add_friend_chat").value.length == 0) {
+                document.getElementById("suggested_friend").innerText = "";
+                document.getElementById("add_friend_chat").style.width = '9ch';
+            }
         });
 
         function add_user_key_type(event) {
@@ -39,7 +43,11 @@
                 input_elem.style.width = '9ch';
                 document.getElementById("suggested_friend").innerText = "";
             } else {
-                input_elem.style.width = String(input_elem.value.length) + "ch";
+                var dummy_span = document.getElementById("hidden_span");
+                dummy_span.innerText = input_elem.value;
+                var dummy_span_width = dummy_span.offsetWidth;
+
+                input_elem.style.width = String(dummy_span_width) + "px";
                 socket.emit('get_autocomplete_suggestions',JSON.stringify({sender: user_name, entered: input_elem.value}));
             }
         }
@@ -51,7 +59,7 @@
             var entered_test = input_elem.value + suggested_text;
             input_elem.value = "";
             document.getElementById("suggested_friend").innerText = "";
-
+    
             socket.emit('add_user_to_chat',JSON.stringify({sender: user_name, 'add_user': entered_test, 'chat_room_id': ACTIVE_CHAT_ID}));
         }
 
@@ -62,7 +70,7 @@
 
         <div class="chat-members blow-out">
             <div id="connected-users-wpr" class="connected-users-wpr blow-out">
-
+                <span id="hidden_span" class="hidden_span"></span>
                 <div class="chat-user dull-input">
                     <input id="add_friend_chat" onchange="add_user_to_chat()" onkeyup="add_user_key_type()" onkeydown="add_user_key_type()" type="add_user" name="add_user" placeholder="ADD USER" />
                     <span id="suggested_friend"></span>

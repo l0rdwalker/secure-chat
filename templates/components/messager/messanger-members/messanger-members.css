@@ -28,8 +28,19 @@
     border: none; 
     outline: none;
     width: 9ch;
+    transition: width 0.5s ease;
     font-family: 'Trebuchet MS', sans-serif;
     font: 5px;
+}
+
+.hidden_span {
+    font: 5px;
+    font-family: 'Trebuchet MS', sans-serif;
+    padding: 0px;
+    width: fit-content;
+    background-color: blueviolet;
+    position: absolute;
+    visibility: hidden;
 }
 
 .dull-input span {

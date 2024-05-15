@@ -13,12 +13,32 @@
                 highlight.style.transform = "translate(0px,-23px)";
                 highlight.style.borderRadius = "10px 0px 0px 10px";
                 state = false;
+                get_page_data('social');
             } else {
                 highlight.style.transform = "translate("+width+"px,-23px)";
                 highlight.style.borderRadius = "0px 10px 10px 0px";
                 state = true;
+                get_page_data('knowledge');
             }
         }
+
+        function get_page_data(page) {
+            socket.emit('get_page_data',JSON.stringify({sender: user_name, 'page':page})); 
+        }
+
+        socket.on("recieve_page_data", (msg, color="black") => {
+            var message_json = JSON.parse(msg);
+    
+            var side_bar = document.getElementById("dynamic_sidebar");
+            side_bar.innerHTML = message_json['page_data_sidebar'];
+
+            var main_page = document.getElementById("padding_alt");
+            main_page.innerHTML = message_json['page_data_main'];
+
+            if (message_json['page_type'] == 'social') {
+                socket.emit('load_chat_configs',JSON.stringify({sender: user_name})); 
+            }
+        });
     </script>
             
     <div id="toggle-page-wpr" class="toggle-wpr">

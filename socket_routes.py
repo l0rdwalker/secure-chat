@@ -6,6 +6,7 @@ file containing all the routes related to socket.io
 from flask_socketio import emit
 from flask import request
 from userManager.manager import user_manager
+from flask import render_template
 from flask_jwt_extended import decode_token
 from flask import current_app
 import jwt
@@ -99,7 +100,12 @@ def connect(): #Main method which establishes connection to oncoming users
             get_user_chats(user_name)
     else:
         inform_error("Invalid connection credentials",request.sid,registered=False)
-    
+
+@socketio.on('load_chat_configs')
+def load_chat_configs(message):
+    message_json = json.loads(message)
+    get_user_chats(message_json['sender'])
+
 @socketio.on('disconnect')
 def manage_disconnect(): #Manages user disconnections
     user_name = request.cookies.get("username")
@@ -211,3 +217,17 @@ def get_autocomplete_suggestions(message):
 
     emit("name_suggestion",json.dumps({"suggestion":suggestion}),room=user_aggregator.get_relay_connection_reference(message_json['sender']))
     
+    
+@socketio.on('get_page_data')
+def get_page_data(message):
+    message_json = json.loads(message)
+    if (message_json['page'] == 'social'):
+        main_page = render_template("./components/messager/messager.jinja")
+        side_bar = render_template("./components/sidebar/sidebar.jinja")
+        page_type = "social"
+    elif (message_json['page'] == 'knowledge'):
+        main_page = ""
+        side_bar = ""
+        page_type = ""
+    
+    emit("recieve_page_data",json.dumps({"page_data_sidebar":side_bar,'page_data_main':main_page, 'page_type':page_type}),room=user_aggregator.get_relay_connection_reference(message_json['sender']))

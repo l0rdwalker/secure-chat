@@ -33,21 +33,15 @@
 
         socket.on("your_chat_rooms", (msg, color="black") => {
             chat_rooms = JSON.parse(msg)['chat_rooms'];
-            GLOBAL_CHAT_LIST = chat_rooms;
             LOAD_chatrooms_list(chat_rooms);
         });
     </script>
  
-    <div class="sidebar-divisor">
-        <div class="content-container">
-            <div id="content-vertical-container" class="content-vertical-container">
-                {% include './components/sidebar/new_chat_btn/new_chat_btn.jinja' %}
 
-
-                <div id="chathistory-wpr" class="overflowY-chatwpr">
-                
-                </div>
-            </div>
+    <div id="content-vertical-container" class="content-vertical-container">
+        {% include './components/sidebar/new_chat_btn/new_chat_btn.jinja' %}
+        <div id="chathistory-wpr" class="overflowY-chatwpr">
         </div>
     </div>
+
 {% endblock %}
