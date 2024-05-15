@@ -23,6 +23,7 @@
         }
 
         function get_page_data(page) {
+            console.log("commit");
             socket.emit('get_page_data',JSON.stringify({sender: user_name, 'page':page})); 
         }
 
